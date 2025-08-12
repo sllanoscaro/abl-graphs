@@ -1,10 +1,10 @@
 import './App.css';
-import WindChart from './components/WindChart';
+import WindChart3D from './components/WindChart3D';
 
 function App() {
   return (
     <div>
-      <WindChart />
+      <WindChart3D />
     </div>
   );
 }

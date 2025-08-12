@@ -4,12 +4,22 @@ import * as d3 from "d3";
 
 // Estilos del contenedor principal
 const containerStyle = {
-  backgroundColor: "#282c34",
-  minHeight: "100vh",
-  minWidth: "100vw",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
+  backgroundColor: '#1F1F1F',
+  color: '#ffffff',
+  padding: '20px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: '100vh',
+};
+
+const titleStyle = {
+  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  fontSize: '3em',
+  fontWeight: 'bold',
+  color: '#636efa',
+  marginBottom: '20px',
 };
 
 // Función de interpolación
@@ -50,10 +60,7 @@ const WindIsosurface3Drones = () => {
       let maxVelocity = d3.max(data, (p) => p.velocity);
 
       // Ajusta la escala de colores globalmente
-      const colorscale = [
-        [0, "#595cff"],
-        [1, "#c6f8ff"],
-      ];
+      const colorscale = "Viridis";
 
       heights.forEach((h, index) => {
         const layerPoints = data.filter((d) => d.height === h);
@@ -89,13 +96,14 @@ const WindIsosurface3Drones = () => {
 
   return (
     <div style={containerStyle}>
+      <h2 style={titleStyle}>Volumen Atmosférico</h2>
       <Plot
         data={traces}
         layout={{
           width: 1200,
           height: 800,
           title: {
-            text: "Velocidad del Viento - Lecturas de 3 Drones",
+            text: "Velocidad del Viento",
             font: { size: 24, color: "#ffffff", weight: "bold" },
             x: 0.5,
             xanchor: "center",
@@ -104,19 +112,16 @@ const WindIsosurface3Drones = () => {
             xaxis: {
               title: { text: "X (m)", font: { color: "#fff", size: 20, weight: "bold" } },
               tickfont: { color: "#fff" },
-              backgroundcolor: "#40444c",
               gridcolor: "#5c6068",
             },
             yaxis: {
               title: { text: "Y (m)", font: { color: "#fff", size: 20, weight: "bold" } },
               tickfont: { color: "#fff" },
-              backgroundcolor: "#40444c",
               gridcolor: "#5c6068",
             },
             zaxis: {
               title: { text: "Altura (m)", font: { color: "#fff", size: 20, weight: "bold" } },
               tickfont: { color: "#fff" },
-              backgroundcolor: "#40444c",
               gridcolor: "#5c6068",
             },
             camera: {
@@ -124,8 +129,8 @@ const WindIsosurface3Drones = () => {
               center: { x: 0, y: 0, z: 0 },
             },
           },
-          paper_bgcolor: "#282c34",
-          plot_bgcolor: "#282c34",
+          paper_bgcolor: "#1F1F1F",
+          plot_bgcolor: "#1F1F1F",
           font: { color: "#fff" },
           margin: { l: 0, r: 0, t: 80, b: 0 },
         }}

@@ -10,6 +10,7 @@ def connect(config):
             return conn
     except (psycopg2.DatabaseError, Exception) as error:
         print(error)
+        return None
 
 
 if __name__ == '__main__':

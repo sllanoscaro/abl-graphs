@@ -4,7 +4,7 @@ import * as d3 from "d3";
 
 // Define un objeto de estilos para el contenedor principal
 const containerStyle = {
-  backgroundColor: '#282c34',
+  backgroundColor: '#1F1F1F',
   color: '#ffffff',
   padding: '20px',
   display: 'flex',
@@ -17,9 +17,9 @@ const containerStyle = {
 // Define un objeto de estilos para los títulos
 const titleStyle = {
   fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-  fontSize: '2em',
+  fontSize: '3em',
   fontWeight: 'bold',
-  color: '#61dafb',
+  color: '#636efa',
   marginBottom: '20px',
 };
 
@@ -59,7 +59,7 @@ const WindContourPlot = () => {
 
   return (
     <div style={containerStyle}>
-      <h2 style={titleStyle}>Mapa de Contornos - Velocidad del Viento</h2>
+      <h2 style={titleStyle}>Mapa de Contornos</h2>
       <Plot
         data={[
           {
@@ -67,10 +67,7 @@ const WindContourPlot = () => {
             y: plotData.y,
             z: plotData.z,
             type: "contour",
-            colorscale: [
-              [0, "#595cff"],
-              [1, "#c6f8ff"],
-            ],
+            colorscale: "Viridis",
             contours: {
               coloring: "heatmap",
               showlabels: true,
@@ -87,6 +84,7 @@ const WindContourPlot = () => {
                 color: '#ffffff', // Mantiene el color blanco
               },
             },
+            hoverinfo: 'none', // Desactiva el hover para el mapa de contornos
           },
           {
             x: plotData.scatterPoints.x,
@@ -103,10 +101,10 @@ const WindContourPlot = () => {
           },
         ]}
         layout={{
-          width: 1750,
+          width: 1800,
           height: 700,
-          paper_bgcolor: '#282c34',
-          plot_bgcolor: '#282c34',
+          paper_bgcolor: '#1F1F1F',
+          plot_bgcolor: '#1F1F1F',
           font: {
             color: '#ffffff',
             weight: 'bold',
@@ -127,10 +125,11 @@ const WindContourPlot = () => {
                 size: 20,
                 color: '#ffffff',
               },
+              standoff: 25,
             },
             tickfont: {
-              size: 20, // Aumenta el tamaño de la fuente de los valores del eje X
-              color: '#ffffff', // Mantiene el color blanco
+              size: 20,
+              color: '#ffffff',
             },
           },
           yaxis: {
@@ -140,10 +139,11 @@ const WindContourPlot = () => {
                 size: 20,
                 color: '#ffffff',
               },
+              standoff: 25,
             },
             tickfont: {
-              size: 20, // Aumenta el tamaño de la fuente de los valores del eje X
-              color: '#ffffff', // Mantiene el color blanco
+              size: 20,
+              color: '#ffffff',
             },
           },
         }}

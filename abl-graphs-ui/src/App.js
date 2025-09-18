@@ -1,12 +1,10 @@
-import './App.css';
-import WindChart from './components/WindChart';
+import DBStatusButton from "./components/DbStatusButton/DbStatusButton.jsx";
 
-function App() {
+export default function SettingsPage() {
   return (
-    <div>
-      <WindChart />
+    <div className="p-6">
+      <h1 className="text-xl font-semibold mb-3">Database Status</h1>
+      <DBStatusButton endpoint="/api/db/health" />
     </div>
   );
 }
-
-export default App;

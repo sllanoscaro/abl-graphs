@@ -1,0 +1,37 @@
+.db-status-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+
+    color: rgb(255, 255, 255);
+  }
+  
+  /* Default (gris) */
+  .db-status-button.default {
+    background-color: #bbbbbb;
+  }
+  
+  /* Conectando (naranjo) */
+  .db-status-button.checking {
+    background-color: #ff9800; /* naranja */
+  }
+  
+  /* Conectado (verde) */
+  .db-status-button.success {
+    background-color: #4caf50; /* verde */
+  }
+  
+  /* Error (rojo) */
+  .db-status-button.error {
+    background-color: #f44336; /* rojo */
+  }
+  
+  .db-status-button:disabled {
+    opacity: 0.9;
+    cursor: not-allowed;
+  }
+  

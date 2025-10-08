@@ -1,0 +1,62 @@
+{
+	"AnemometroNode/anemometer_data":{
+		"VelocidadViento":{"data_type": "float","length_bytes": 8},
+		"DireccionViento":{"data_type": "float","length_bytes": 8},	
+		"VectorU":{"data_type": "float","length_bytes": 8},
+		"VectorV":{"data_type": "float","length_bytes": 8},
+		"VectorW":{"data_type": "float","length_bytes": 8},
+		"Temperatura":{"data_type": "float","length_bytes": 8},
+		"Humedad":{"data_type": "float","length_bytes": 8},
+		"Presion":{"data_type": "float","length_bytes": 8},
+		"Pitch":{"data_type": "float","length_bytes": 8},
+		"Roll":{"data_type": "float","length_bytes": 8},
+		"Magnetic":{"data_type": "float","length_bytes": 8}
+	},
+
+	"ImetNode/imet_data":{
+		"Presion":{"data_type": "float","length_bytes": 8},
+		"Temperatura":{"data_type": "float","length_bytes": 8},
+		"Humedad":{"data_type": "float","length_bytes": 8},
+		"TempHumRelativa":{"data_type": "float","length_bytes": 8},
+		"Longitude":{"data_type": "float","length_bytes": 8},
+		"Latitude":{"data_type": "float","length_bytes": 8},
+		"Altitude":{"data_type": "float","length_bytes": 8},
+		"GPS":{"data_type": "int","length_bytes": 8}
+	},
+
+	"DroneNode/drone_data":{
+		"battery":{
+			"remaining_percent":{"data_type": "float","length_bytes": 8},
+			"voltage_v":{"data_type": "float","length_bytes": 8},
+			"current_a":{"data_type": "float","length_bytes": 8}
+		},
+		"health":{
+			"is_gyrometer_calibration_ok":{"data_type": "bool","length_bytes": 0},
+			"is_accelerometer_calibration_ok":{"data_type": "bool","length_bytes": 0},
+			"is_magnetometer_calibration_ok":{"data_type": "bool","length_bytes": 0},
+			"is_local_position_ok":{"data_type": "bool","length_bytes": 0},
+			"is_global_position_ok":{"data_type": "bool","length_bytes": 0},
+			"is_home_position_ok":{"data_type": "bool","length_bytes": 0}
+		},
+		"gps":{
+			"num_satellites":{"data_type": "int","length_bytes": 8},
+			"fix_type":{"data_type": "string","length_bytes": 8},
+			"in_air":{"data_type": "bool","length_bytes": 8},
+			"position":{"data_type": "float","length_bytes": 8}
+		},
+		"imu":{
+			"accel_forwar":{"data_type": "float","length_bytes": 8},
+			"accel_right":{"data_type": "float","length_bytes": 8},
+			"accel_down":{"data_type": "float","length_bytes": 8},
+			"gyro_forward":{"data_type": "float","length_bytes": 8},
+			"gyro_right":{"data_type": "float","length_bytes": 8},
+			"gyro_down":{"data_type": "float","length_bytes": 8},
+			"mag_fwd":{"data_type": "float","length_bytes": 8},
+			"mag_right":{"data_type": "float","length_bytes": 8},
+			"mag_down":{"data_type": "float","length_bytes": 8},
+			"temperature":{"data_type": "float","length_bytes": 8},
+			"timestamp_us":{"data_type": "unix time","length_bytes": 8}
+		},
+		"timestamp":{"data_type": "unix time","length_bytes": 8}
+	}
+}

@@ -35,10 +35,10 @@ export default function ReportsView({ isConnected, endpoint }) {
       {/* Columna izquierda: listado */}
       <div className="panel">
         <div className="panel-header">
-          <h3>Misiones</h3>
+          <h3>Listado de misiones</h3>
           <div className="panel-actions">
             <button type="button" className="ghost-btn" onClick={fetchMissions} disabled={!isConnected || loading}>
-              Refresh
+              Recargar
             </button>
           </div>
         </div>
@@ -51,8 +51,14 @@ export default function ReportsView({ isConnected, endpoint }) {
 
         <ul className="mission-list">
           {missions.map((m) => {
-            const key = m.id ?? m.mission_id ?? m.uuid ?? m.name;
-            const label = m.name ?? m.title ?? `Misión ${key}`;
+            const key = m.idmision ?? m.id; // Usamos `idmision` para la clave
+            const label = m.planvuelo ?? `Misión ${key}`; // Título de la misión
+
+            // Formatear la fecha correctamente (de 'fechahora' a formato legible)
+            const formattedDate = m.fechahora
+              ? new Date(m.fechahora).toLocaleString()
+              : "";
+
             return (
               <li
                 key={key}
@@ -60,12 +66,15 @@ export default function ReportsView({ isConnected, endpoint }) {
                 onClick={() => setSelected(key)}
               >
                 <div className="mission-title">{label}</div>
-                {m.date && <div className="mission-meta">{m.date}</div>}
+                {formattedDate && (
+                  <div className="mission-meta">{formattedDate}</div>
+                )}
               </li>
             );
           })}
         </ul>
       </div>
+
 
       {/* Columna derecha: formulario (bloqueado hasta seleccionar) */}
       <div className="panel">

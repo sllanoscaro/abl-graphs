@@ -1,6 +1,8 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 import psycopg
+from psycopg.rows import dict_row
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -10,7 +12,7 @@ DATABASE_URL = "postgresql://droneuser:dronedbpassword1@localhost:5432/testing"
 
 def _to_serializable(v):
     # Convierte datetime/date a ISO para que jsonify no falle:
-    if isinstance(v, (datetime, date)):
+    if isinstance(v, datetime):
         return v.isoformat()
     return v
 
@@ -29,9 +31,9 @@ def db_health():
 @app.route("/api/missions", methods=["GET"])
 def get_missions():
     SQL = """
-    SELECT id, name, date, status
-    FROM missions
-    ORDER BY date DESC NULLS LAST, id DESC
+    SELECT IdMision, PlanVuelo, FechaHora
+    FROM Mision
+    ORDER BY FechaHora DESC NULLS LAST
     """
     try:
         with psycopg.connect(DATABASE_URL, connect_timeout=5, row_factory=dict_row) as conn:

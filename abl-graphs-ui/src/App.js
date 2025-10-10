@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import Header from './components/Header/Header';
 import NavigationTabs from './components/NavigationTabs/NavigationTabs';
 import ReportsView from "./components/ReportsView/ReportsView";
+import AnalyticsView from "./components/AnalyticsView/AnalyticsView";
 import './App.css';
+
+// TODO:
+// - Implementar la generación de informes en ReportsView.
+// - Aplicar ETL donde sea necesario.
+// - Conectar datos reales de archivos JSON para Analytics.
+// - Generación de gráficas con chart.js para Analytics y plotly.js para ReportsView.
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("analytics"); // Ventana de navegación activa
@@ -25,8 +32,7 @@ export default function App() {
       <div className="content">
         <main className="page-content">
           {activeTab === "analytics" && (
-            <div className="placeholder-card">
-            </div>
+            <AnalyticsView />
           )}
 
           {activeTab === "reports" && (

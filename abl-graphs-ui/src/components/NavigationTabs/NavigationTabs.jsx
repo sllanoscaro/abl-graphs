@@ -10,16 +10,16 @@ export default function NavigationTabs({ activeTab, onChange, reportsDisabled })
         onClick={() => onChange("analytics")}
         type="button"
       >
-        Real time analytics
+        Misión en tiempo real
       </button>
 
       <button
         className={`tab-link ${activeTab === "reports" ? "active" : ""} ${ reportsDisabled ? "disabled" : "" }`}
         onClick={() => !reportsDisabled && onChange("reports")}
         type="button"
-        title={reportsDisabled ? "Conéctate a la base de datos para acceder" : ""}
+        title={reportsDisabled ? "Verifica primero la conexión a la BD en PostgreSQL" : ""}
       >
-        Report generation
+        Generación de informes
       </button>
     </nav>
   );

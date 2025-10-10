@@ -3,12 +3,25 @@ from flask_cors import CORS
 import psycopg
 from psycopg.rows import dict_row
 from datetime import datetime
+from file_monitor import FileMonitor
 
 app = Flask(__name__)
 CORS(app)
 
 # Replace this with your actual PostgreSQL connection string
 DATABASE_URL = "postgresql://droneuser:dronedbpassword1@localhost:5432/testing"
+
+# Global variables for mission status
+mission_status = {
+    "active": False,
+    "active_drones": 0,
+    "current_mission_file": None,
+    "start_time": None,
+    "last_activity": None
+}
+
+# Initialize file monitor
+file_monitor = FileMonitor(mission_status)
 
 def _to_serializable(v):
     # Convierte datetime/date a ISO para que jsonify no falle:
@@ -30,7 +43,7 @@ def db_health():
 
 @app.route("/api/missions", methods=["GET"])
 def get_missions():
-    SQL = """
+    sql = """
     SELECT IdMision, PlanVuelo, FechaHora
     FROM Mision
     ORDER BY FechaHora DESC NULLS LAST
@@ -38,7 +51,7 @@ def get_missions():
     try:
         with psycopg.connect(DATABASE_URL, connect_timeout=5, row_factory=dict_row) as conn:
             with conn.cursor() as cur:
-                cur.execute(SQL)
+                cur.execute(sql)
                 rows = cur.fetchall()  # lista de dicts
 
         # Asegurar serialización (fechas -> ISO)
@@ -52,5 +65,26 @@ def get_missions():
         # Log opcional: app.logger.exception(e)
         return jsonify({"ok": False, "error": str(e)}), 500
 
+@app.route("/api/mission/status", methods=["GET"])
+def get_mission_status():
+    """Get current mission status"""
+    return jsonify(mission_status), 200
+
+@app.route("/api/mission/stop", methods=["POST"])
+def stop_mission():
+    """Manually stop the current mission"""
+    mission_status["active"] = False
+    mission_status["active_drones"] = 0
+    mission_status["current_mission_file"] = None
+    mission_status["start_time"] = None
+    mission_status["last_activity"] = None
+    return jsonify({"message": "Mission stopped", "status": mission_status}), 200
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Start file monitoring
+    file_monitor.start_monitoring()
+
+    try:
+        app.run(debug=True)
+    finally:
+        file_monitor.stop_monitoring()

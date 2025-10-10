@@ -41,12 +41,12 @@ export default function DbStatusButton({
         disabled={status === 'checking'}
       >
         {status === 'checking'
-          ? 'Connecting to DB...'
+          ? 'Conectando...'
           : status === 'success'
-          ? 'Connection established'
+          ? '¡Conexión establecida!'
           : status === 'error'
-          ? 'Connection error'
-          : 'Check DB connection'}
+          ? '¡Error de conexión!'
+          : 'Verificar conexión'}
       </button>
     </div>
   );

@@ -9,8 +9,8 @@ export default function Header({ onConnectionChange, isConnected }) {
       <div className="logo-container">
         <img src="dron-alternativo.png" alt="Logo" className="logo" />
         <div>
-          <h1 className="app-title">Weather Analytics</h1>
-          <p className="app-subtitle">Drone-powered meteorological insights</p>
+          <h1 className="app-title">ABL-DRONE</h1>
+          <p className="app-subtitle">Gráficas de datos meteorológicos</p>
         </div>
       </div>
 

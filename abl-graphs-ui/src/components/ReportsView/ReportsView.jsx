@@ -24,7 +24,7 @@ export default function ReportsView({ isConnected, endpoint }) {
       }
       setMissions(Array.isArray(data) ? data : data?.missions || []);
     } catch (e) {
-      setError(e.message || "Error inesperado");
+      setError(e.message || "Ha ocurrido un error inesperado");
     } finally {
       setLoading(false);
     }
@@ -35,10 +35,10 @@ export default function ReportsView({ isConnected, endpoint }) {
       {/* Columna izquierda: listado */}
       <div className="panel">
         <div className="panel-header">
-          <h3>Listado de misiones</h3>
+          <h3>Misiones registradas</h3>
           <div className="panel-actions">
             <button type="button" className="ghost-btn" onClick={fetchMissions} disabled={!isConnected || loading}>
-              Recargar
+              Actualizar
             </button>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function ReportsView({ isConnected, endpoint }) {
       {/* Columna derecha: formulario (bloqueado hasta seleccionar) */}
       <div className="panel">
         <div className="panel-header">
-          <h3>Generación de reporte</h3>
+          <h3>Generación de informe</h3>
         </div>
 
         {!selected && (

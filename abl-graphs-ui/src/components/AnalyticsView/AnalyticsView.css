@@ -1,12 +1,12 @@
 .analytics-view {
-  padding: 20px;
+  padding: 10px;
   background-color: #f8f9fa;
   min-height: 100vh;
   font-family: 'Montserrat', sans-serif;
 }
 
 .analytics-header {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
@@ -175,4 +175,59 @@
   .chart-status {
     font-size: 12px;
   }
+}
+
+/* Overlay for locked/waiting state */
+.overlay-locked {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.98);
+  border: 2px solid #e74c3c;
+  border-radius: 12px;
+  padding: 20px 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  min-width: 280px;
+}
+
+.overlay-locked p {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.overlay-locked .end-mission-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+  width: 100%;
+}
+
+.overlay-locked .end-mission-button:hover:not(:disabled) {
+  background-color: #c0392b;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+  transform: translateY(-2px);
+}
+
+.overlay-locked .end-mission-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+}
+
+.overlay-locked .end-mission-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
 }

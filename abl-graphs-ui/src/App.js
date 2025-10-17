@@ -3,6 +3,7 @@ import Header from './components/Header/Header';
 import NavigationTabs from './components/NavigationTabs/NavigationTabs';
 import ReportsView from "./components/ReportsView/ReportsView";
 import AnalyticsView from "./components/AnalyticsView/AnalyticsView";
+import MissionsListView from "./components/MissionsListView/MissionsListView";
 import './App.css';
 
 // TODO:
@@ -27,12 +28,17 @@ export default function App() {
         activeTab={activeTab}
         onChange={setActiveTab}
         reportsDisabled={!isConnected}
+        missionsDisabled={!isConnected}
       />
 
       <div className="content">
         <main className="page-content">
           {activeTab === "analytics" && (
             <AnalyticsView />
+          )}
+
+          {activeTab === "missions" && (
+            <MissionsListView isConnected={isConnected} />
           )}
 
           {activeTab === "reports" && (

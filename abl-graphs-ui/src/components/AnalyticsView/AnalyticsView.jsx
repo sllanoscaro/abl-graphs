@@ -24,41 +24,78 @@ const AnalyticsView = () => {
   const [activeDrones, setActiveDrones] = useState(0);
   const [missionStarted, setMissionStarted] = useState(false);
   const [currentMissionFile, setCurrentMissionFile] = useState(null);
-  const [lastActivity, setLastActivity] = useState(null);
+  const [isEndingMission, setIsEndingMission] = useState(false);
+  const [sensorData, setSensorData] = useState({
+    timestamps: [],
+    presion: [],
+    temperatura: [],
+    humedad: [],
+    altitud: []
+  });
 
-  // Poll mission status from API
+  // Poll mission status and data from API in a single request
   useEffect(() => {
     let isMounted = true;
     let intervalId = null;
 
-    const checkMissionStatus = async () => {
+    const fetchMissionRealtime = async () => {
       if (!isMounted) return;
 
       try {
-        const response = await fetch('http://localhost:5000/api/mission/status');
+        const response = await fetch('http://localhost:5000/api/mission/realtime');
         if (response.ok && isMounted) {
-          const status = await response.json();
-          setMissionStarted(status.active);
-          setActiveDrones(status.active_drones);
-          setCurrentMissionFile(status.current_mission_file);
-          setLastActivity(status.last_activity);
+          const result = await response.json();
+
+          // Update mission status
+          setMissionStarted(result.status.active);
+          setActiveDrones(result.status.active_drones);
+          setCurrentMissionFile(result.status.current_mission_file);
+
+          // Update sensor data if mission is active and has data
+          if (result.status.active && result.data.length > 0) {
+            const timestamps = result.data.map((entry, index) => index);
+            const presion = result.data.map(entry => entry.presion);
+            const temperatura = result.data.map(entry => entry.temperatura);
+            const humedad = result.data.map(entry => entry.humedad);
+            const altitud = result.data.map(entry => entry.altitud);
+
+            setSensorData({
+              timestamps,
+              presion,
+              temperatura,
+              humedad,
+              altitud
+            });
+          }
+          // If mission is not active but we had a file, keep the data (pause state)
+          // Only clear data if there was never a mission file
+          else if (!result.status.current_mission_file && !currentMissionFile) {
+            setSensorData({
+              timestamps: [],
+              presion: [],
+              temperatura: [],
+              humedad: [],
+              altitud: []
+            });
+          }
+          // else: keep existing data (paused state)
         }
       } catch (error) {
         if (isMounted) {
-          console.error('Error checking mission status:', error);
+          console.error('Error fetching mission realtime data:', error);
         }
       }
     };
 
-    // Check immediately on mount
-    checkMissionStatus();
+    // Fetch immediately on mount
+    fetchMissionRealtime();
 
-    // Set up interval for periodic checks
+    // Set up interval for periodic updates
     intervalId = setInterval(() => {
       if (isMounted) {
-        checkMissionStatus();
+        fetchMissionRealtime();
       }
-    }, 2000);
+    }, 1000); // Update every second
 
     // Cleanup function
     return () => {
@@ -68,21 +105,56 @@ const AnalyticsView = () => {
         intervalId = null;
       }
     };
-  }, []); // Empty dependency array ensures this runs only once
+  }, [currentMissionFile]);
+
+  // Handle ending the mission manually
+  const handleEndMission = async () => {
+    setIsEndingMission(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/mission/stop', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Reset all state
+        setMissionStarted(false);
+        setActiveDrones(0);
+        setCurrentMissionFile(null);
+        setSensorData({
+          timestamps: [],
+          presion: [],
+          temperatura: [],
+          humedad: [],
+          altitud: []
+        });
+      } else {
+        console.error('Error ending mission');
+      }
+    } catch (error) {
+      console.error('Error ending mission:', error);
+    } finally {
+      setIsEndingMission(false);
+    }
+  };
 
   // Determine overlay message based on mission state
   const getOverlayMessage = () => {
     if (!currentMissionFile) {
       return "Esperando datos...";
     } else if (currentMissionFile && !missionStarted) {
-      return "Conexión perdida. Esperando datos...";
+      return "Datos interrumpidos. ¿La misión terminó?";
     }
     return "";
   };
 
   const showOverlay = !missionStarted;
+  const showEndMissionButton = currentMissionFile && !missionStarted;
 
-  // Configuración base para todos los gráficos sin datos
+  // Configuración base para todos los gráficos
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -91,7 +163,7 @@ const AnalyticsView = () => {
         display: false,
       },
       tooltip: {
-        enabled: missionStarted, // Deshabilitar tooltips si no hay misión
+        enabled: missionStarted,
       },
     },
     scales: {
@@ -99,7 +171,7 @@ const AnalyticsView = () => {
         display: true,
         title: {
           display: true,
-          text: 'Tiempo',
+          text: 'Tiempo (muestras)',
           font: {
             family: 'Montserrat',
             size: 12,
@@ -132,7 +204,7 @@ const AnalyticsView = () => {
     },
     elements: {
       point: {
-        radius: missionStarted ? 3 : 0,
+        radius: missionStarted ? 2 : 0,
       },
       line: {
         tension: 0.1,
@@ -144,14 +216,13 @@ const AnalyticsView = () => {
     },
   };
 
-
   // Datos específicos para cada gráfico con colores diferentes
-  const getChartData = (label, color) => ({
-    labels: [],
+  const getChartData = (label, color, dataKey) => ({
+    labels: sensorData.timestamps,
     datasets: [
       {
         label: label,
-        data: [],
+        data: sensorData[dataKey] || [],
         borderColor: missionStarted ? color : '#bdc3c7',
         backgroundColor: missionStarted ? `${color}20` : 'rgba(189, 195, 199, 0.05)',
         borderWidth: 2,
@@ -164,31 +235,31 @@ const AnalyticsView = () => {
     {
       title: 'Velocidad del Viento',
       unit: 'm/s',
-      data: getChartData('Velocidad del viento', '#3498db'),
+      data: getChartData('Velocidad del viento', '#3498db', 'velocidad'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
       title: 'Temperatura',
       unit: '°C',
-      data: getChartData('Temperatura', '#e74c3c'),
+      data: getChartData('Temperatura', '#e74c3c', 'temperatura'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
       title: 'Presión Atmosférica',
       unit: 'hPa',
-      data: getChartData('Presión', '#f39c12'),
+      data: getChartData('Presión', '#f39c12', 'presion'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
       title: 'Humedad',
       unit: '%',
-      data: getChartData('Humedad', '#27ae60'),
+      data: getChartData('Humedad', '#27ae60', 'humedad'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
       title: 'Altura',
       unit: 'm',
-      data: getChartData('Altura', '#9b59b6'),
+      data: getChartData('Altura', '#9b59b6', 'altitud'),
       status: missionStarted ? 'online' : 'waiting'
     },
   ];
@@ -196,7 +267,6 @@ const AnalyticsView = () => {
   return (
     <div className="analytics-view">
       <div className="analytics-header">
-        <h2>Misión en tiempo real</h2>
         {missionStarted && (
           <p>
             Drones activos en la misión: <span className="drone-count">{activeDrones}</span>
@@ -207,12 +277,21 @@ const AnalyticsView = () => {
       {showOverlay && (
         <div className="overlay-locked">
           <p>{getOverlayMessage()}</p>
+          {showEndMissionButton && (
+            <button
+              className="end-mission-button"
+              onClick={handleEndMission}
+              disabled={isEndingMission}
+            >
+              {isEndingMission ? 'Terminando misión...' : 'Terminar misión'}
+            </button>
+          )}
         </div>
       )}
 
       <div className="analytics-grid">
         {charts.map((chart, index) => (
-          <div key={index} className={`chart-panel ${!missionStarted ? 'disabled' : ''}`}>
+          <div key={index} className="chart-panel">
             <div className="chart-header">
               <h3>{chart.title} ({chart.unit})</h3>
               <span className={`chart-status ${chart.status}`}>

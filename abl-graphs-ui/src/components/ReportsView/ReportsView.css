@@ -1,6 +1,31 @@
+.reports-container {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.reports-header {
+    padding: 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.view-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.view-subtitle {
+    margin: 8px 0 0 0;
+    font-size: 14px;
+    color: #7f8c8d;
+    font-family: 'Montserrat', sans-serif;
+}
+
 .reports-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.5fr;
     gap: 24px;
     margin: 20px;
     font-family: 'Montserrat', sans-serif;
@@ -111,6 +136,9 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .mission-item:hover {
@@ -194,17 +222,59 @@
     background: rgba(255, 243, 224, 0.9);
     border: 2px dashed #ff9800;
     margin: 20px;
-    padding: 20px;
+    padding: 40px 20px;
     border-radius: 12px;
     color: #e65100;
     text-align: center;
     font-family: 'Montserrat', sans-serif;
-    font-weight: 500;
+    font-size: 16px;
 }
 
 .overlay-locked p {
     margin: 0;
-    font-size: 16px;
+}
+
+.mission-checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.mission-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #1976d2;
+}
+
+.mission-content {
+    flex: 1;
+}
+
+.selection-summary {
+    padding: 16px 20px;
+    border-top: 1px solid #eee;
+    background-color: #fafafa;
+}
+
+.selection-summary p {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.plot-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.plot-container {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 600px;
 }
 
 /* Responsive design */

@@ -1,7 +1,7 @@
 import React from "react";
 import "./NavigationTabs.css";
 
-export default function NavigationTabs({ activeTab, onChange, reportsDisabled }) {
+export default function NavigationTabs({ activeTab, onChange, reportsDisabled, missionsDisabled }) {
 
   return (
     <nav className="nav-tabs">
@@ -11,6 +11,15 @@ export default function NavigationTabs({ activeTab, onChange, reportsDisabled })
         type="button"
       >
         Misión en tiempo real
+      </button>
+
+      <button
+        className={`tab-link ${activeTab === "missions" ? "active" : ""} ${ missionsDisabled ? "disabled" : "" }`}
+        onClick={() => !missionsDisabled && onChange("missions")}
+        type="button"
+        title={missionsDisabled ? "Verifica primero la conexión a la BD en PostgreSQL" : ""}
+      >
+        Listado de misiones
       </button>
 
       <button

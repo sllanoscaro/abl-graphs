@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 altura_inicial = 1500       # metros
 descenso = 5                # metros por paso
 hora_inicial = datetime.strptime("12:00:00", "%H:%M:%S")
-id_mision = 1
-id_lectura = 1
+id_mision = 3
+id_lectura = 3011
 
 # Definición de los sensores y sus rangos de valores
 sensores = [
@@ -42,8 +42,8 @@ query = (
 )
 
 # Guardar o mostrar
-with open("insert_lecturas.sql", "w", encoding="utf-8") as f:
+with open("insert_lecturas_2.sql", "w", encoding="utf-8") as f:
     f.write(query)
 
-print("✅ Consulta SQL generada: insert_lecturas.sql")
+print("✅ Consulta SQL generada: insert_lecturas_2.sql")
 print(f"Total de registros: {len(valores)}")

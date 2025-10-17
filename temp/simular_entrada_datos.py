@@ -1,32 +1,59 @@
 import time
 import json
+import os
 
-# Ruta del archivo de entrada (data.log) y del archivo de salida (nuevo_data.log)
-input_file = r"/home/sebastianll/repositorios/abl-graphs/temp/data.log"
+input_file = r"/home/sebastianll/repositorios/abl-graphs/temp/data_cleaned.log"
 output_file = r"/home/sebastianll/repositorios/abl-graphs/rawdata/mision1.log"
 
 def simulate_data_insertion(input_file, output_file):
-    # Abrimos el archivo de entrada para leer
-    with open(input_file, "r") as infile:
-        # Abrimos el archivo de salida para escribir
-        with open(output_file, "w") as outfile:
-            lines = infile.readlines()  # Leemos todas las líneas del archivo
-            sensor_data = []  # Lista para almacenar los datos que vamos a escribir
+    with open(input_file, "r", encoding="utf-8") as infile, \
+            open(output_file, "w", encoding="utf-8", buffering=1) as outfile:  # buffering=1 -> intento de line-buffering
 
-            for line in lines:
-                # Si la línea comienza con "sensors/DroneNode/drone_data", indicamos un corte
-                if line.startswith("sensors/DroneNode/drone_data"):
-                    # Escribimos los datos en el archivo de salida
+        sensor_data = []
+        for line in infile:
+            if line.startswith("sensors/DroneNode/drone_data"):
+                # 1) volcar el bloque previo
+                if sensor_data:
                     for data in sensor_data:
+                        # asegúrate de que cada línea termina en \n
+                        if not data.endswith("\n"):
+                            data = data + "\n"
                         outfile.write(data)
-                    # Limpiamos la lista para los próximos datos
+                    outfile.flush()
+                    try:
+                        os.fsync(outfile.fileno())  # fuerza a disco (opcional, pero útil)
+                    except OSError:
+                        pass
                     sensor_data = []
-                    time.sleep(1)  # Simulamos un segundo de espera entre cada bloque de datos
-                    outfile.write(line)  # Escribimos el bloque de drone data
-                else:
-                    sensor_data.append(line)  # Almacenamos temporalmente los datos hasta el corte
+                    time.sleep(1)  # pausa visible para tail -f
+
+                # 2) escribir la línea de corte (drone_data)
+                if not line.endswith("\n"):
+                    line = line + "\n"
+                outfile.write(line)
+                outfile.flush()
+                try:
+                    os.fsync(outfile.fileno())
+                except OSError:
+                    pass
+                # si quieres otra pausa después del drone_data, puedes añadir otro sleep aquí
+            else:
+                sensor_data.append(line)
+
+        # Al final, si quedaron datos sin un último corte, escríbelos
+        if sensor_data:
+            for data in sensor_data:
+                if not data.endswith("\n"):
+                    data = data + "\n"
+                outfile.write(data)
+            outfile.flush()
+            try:
+                os.fsync(outfile.fileno())
+            except OSError:
+                pass
 
     print(f"Los datos fueron simulados y guardados en {output_file}.")
 
 if __name__ == "__main__":
     simulate_data_insertion(input_file, output_file)
+

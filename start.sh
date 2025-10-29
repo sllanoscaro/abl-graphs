@@ -115,7 +115,6 @@ echo -e "${GREEN}  ✓ Proyecto ABL-Graphs Iniciado${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo -e "${BLUE}Backend:${NC}  http://localhost:5000"
 echo -e "${BLUE}Frontend:${NC} http://localhost:3000"
-echo -e "\n${YELLOW}Usa './status.sh' para verificar el estado${NC}"
 echo -e "${YELLOW}Usa 'Ctrl+C' o cierra el terminal para detener los servicios${NC}\n"
 
 # Guardar información del estado

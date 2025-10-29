@@ -17,6 +17,21 @@ BACKEND_DIR="$PROJECT_DIR/abl-graphs-api"
 SIMULATOR_SCRIPT="$BACKEND_DIR/data_simulator/simular_entrada_datos.py"
 RAWDATA_DIR="$PROJECT_DIR/rawdata"
 
+# Función para limpiar al salir
+cleanup() {
+    echo -e "\n${YELLOW}Limpiando directorio rawdata...${NC}"
+    rm -f "$RAWDATA_DIR"/*.log
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ Archivos .log eliminados exitosamente${NC}\n"
+    else
+        echo -e "${RED}✗ Error al limpiar archivos .log${NC}\n"
+    fi
+    exit 0
+}
+
+# Capturar Ctrl+C (SIGINT) y otras señales de terminación
+trap cleanup SIGINT SIGTERM
+
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}  Simulador de Datos de Dron${NC}"
 echo -e "${BLUE}========================================${NC}\n"
@@ -87,12 +102,12 @@ if [ $EXIT_CODE -eq 0 ]; then
 
     # Limpiar el directorio rawdata
     echo -e "${YELLOW}Limpiando directorio rawdata...${NC}"
-    rm -f "$RAWDATA_DIR"/*
+    rm -f "$RAWDATA_DIR"/*.log
 
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ Directorio rawdata limpiado exitosamente${NC}\n"
+        echo -e "${GREEN}✓ Archivos .log eliminados exitosamente${NC}\n"
     else
-        echo -e "${RED}✗ Error al limpiar el directorio rawdata${NC}\n"
+        echo -e "${RED}✗ Error al limpiar archivos .log${NC}\n"
     fi
 
 else
@@ -106,8 +121,8 @@ else
 
     if [[ "$RESPONSE" =~ ^[SsYy]$ ]]; then
         echo -e "${YELLOW}Limpiando directorio rawdata...${NC}"
-        rm -f "$RAWDATA_DIR"/*
-        echo -e "${GREEN}✓ Directorio rawdata limpiado${NC}\n"
+        rm -f "$RAWDATA_DIR"/*.log
+        echo -e "${GREEN}✓ Archivos .log eliminados${NC}\n"
     else
         echo -e "${BLUE}Los archivos se mantienen en: $RAWDATA_DIR${NC}\n"
     fi
@@ -115,6 +130,5 @@ fi
 
 # Información adicional
 echo -e "${BLUE}Información:${NC}"
-echo -e "  Para ver el estado del sistema: ${YELLOW}./status.sh${NC}"
 echo -e "  Para ver Analytics en tiempo real, abre: ${YELLOW}http://localhost:3000${NC}\n"
 

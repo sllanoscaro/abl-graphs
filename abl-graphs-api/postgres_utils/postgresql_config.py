@@ -40,6 +40,62 @@ def read_sql_file(filepath):
         sys.exit(1)
 
 
+def check_tables_exist():
+    """Verifica si las tablas ya existen y están pobladas"""
+    try:
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Verificar si existen las tablas principales
+                cur.execute("""
+                    SELECT table_name 
+                    FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name IN ('dron', 'sensor', 'mision', 'lecturasensor')
+                    ORDER BY table_name;
+                """)
+
+                tables = cur.fetchall()
+
+                # Si no existen las 4 tablas, retornar False
+                if len(tables) < 4:
+                    return False
+
+                # Verificar que las tablas tengan datos
+                cur.execute("SELECT COUNT(*) FROM dron;")
+                dron_count = cur.fetchone()[0]
+
+                cur.execute("SELECT COUNT(*) FROM sensor;")
+                sensor_count = cur.fetchone()[0]
+
+                cur.execute("SELECT COUNT(*) FROM mision;")
+                mision_count = cur.fetchone()[0]
+
+                # Si todas las tablas existen y tienen datos, retornar True
+                if dron_count > 0 and sensor_count > 0 and mision_count > 0:
+                    print("\n✓ Las tablas ya están creadas y pobladas:")
+                    print(f"  - Dron: {dron_count} registros")
+                    print(f"  - Sensor: {sensor_count} registros")
+                    print(f"  - Mision: {mision_count} registros")
+
+                    cur.execute("SELECT COUNT(*) FROM lecturasensor;")
+                    lectura_count = cur.fetchone()[0]
+                    print(f"  - LecturaSensor: {lectura_count} registros")
+
+                    return True
+
+                return False
+
+    except psycopg.OperationalError:
+        # Si hay error de conexión, retornar False para intentar crear las tablas
+        return False
+    except psycopg.errors.UndefinedTable:
+        # Si alguna tabla no existe, retornar False
+        return False
+    except Exception:
+        # Cualquier otro error, retornar False
+        return False
+
+
 def execute_sql_script(sql_content):
     """Ejecuta el script SQL completo"""
     try:
@@ -119,7 +175,18 @@ def main():
         print(f"\n❌ Error: No se encontró el archivo SQL en {SQL_FILE}")
         sys.exit(1)
 
+    # Verificar si las tablas ya existen y están pobladas
+    print("\nVerificando estado de la base de datos...")
+    if check_tables_exist():
+        print("\n✓ No es necesario ejecutar el script de creación.")
+        print("  Las tablas ya están listas para usar.")
+        print("\n" + "=" * 60)
+        print("  ✓ Base de datos lista")
+        print("=" * 60)
+        return
+
     # Leer el archivo SQL
+    print("\nLas tablas no existen o están vacías. Procediendo con la creación...")
     sql_content = read_sql_file(SQL_FILE)
 
     # Ejecutar el script

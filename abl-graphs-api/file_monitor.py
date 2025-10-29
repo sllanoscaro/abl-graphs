@@ -1,6 +1,6 @@
 import os
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -79,8 +79,8 @@ class FileMonitor:
         Returns:
             Observer: The file system observer instance
         """
-        # Get the rawdata path relative to the project root
-        self.rawdata_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'rawdata')
+        # Get the rawdata path relative to abl-graphs-api (one level up from api directory)
+        self.rawdata_path = os.path.join('..', 'rawdata')
 
         if not os.path.exists(self.rawdata_path):
             os.makedirs(self.rawdata_path)

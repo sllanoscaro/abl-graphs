@@ -6,12 +6,21 @@ from datetime import datetime
 from file_monitor import FileMonitor
 import json
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Replace this with your actual PostgreSQL connection string
-DATABASE_URL = "postgresql://droneuser:dronedbpassword1@localhost:5432/testing"
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+DB_PORT = os.getenv('DB_PORT', '5432')
+DB_NAME = os.getenv('DB_NAME')
+
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Global variables for mission status
 mission_status = {
@@ -118,9 +127,8 @@ def get_mission_realtime():
     
     # Only fetch data if mission is active
     if mission_status["active"] and mission_status["current_mission_file"]:
-        log_file_path = os.path.join(os.path.dirname(__file__), '..', 'rawdata', mission_status["current_mission_file"])
-        log_file_path = os.path.normpath(log_file_path)
-        
+        log_file_path = os.path.join('..', 'rawdata', mission_status["current_mission_file"])
+
         parsed_data = parse_log_data(log_file_path)
         
         # Combine imet and drone data with timestamps
@@ -223,9 +231,7 @@ def get_mission_data():
     if not mission_status["active"] or not mission_status["current_mission_file"]:
         return jsonify({"error": "No active mission"}), 404
 
-    log_file_path = os.path.join(os.path.dirname(__file__), '..', 'rawdata', mission_status["current_mission_file"])
-    log_file_path = os.path.normpath(log_file_path)
-
+    log_file_path = os.path.join('..', 'rawdata', mission_status["current_mission_file"])
     data = parse_log_data(log_file_path)
 
     # Combine imet and drone data with timestamps

@@ -1,0 +1,37 @@
+# Environment variables
+abl-graphs-api/.env
+
+# Temp directories
+temp
+
+# Node.js
+abl-graphs-ui/node_modules
+
+# Python
+abl-graphs-api/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+.venv
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+.logs
+
+# OS
+.DS_Store
+Thumbs.db
+

@@ -180,7 +180,7 @@ def get_mission_data_by_id(mission_id):
                     SELECT Tipo, Valor, Altura, HoraMinSeg
                     FROM LecturaSensor
                     WHERE IdMision = %s
-                    ORDER BY Altura DESC, HoraMinSeg ASC
+                    ORDER BY HoraMinSeg ASC
                 """, (mission_id,))
                 readings = cur.fetchall()
 
@@ -192,9 +192,11 @@ def get_mission_data_by_id(mission_id):
             sensor_type = reading['tipo']
             if sensor_type not in data_by_type:
                 data_by_type[sensor_type] = {
+                    'tiempos': [],
                     'altitudes': [],
                     'valores': []
                 }
+            data_by_type[sensor_type]['tiempos'].append(str(reading['horaminseg']) if reading['horaminseg'] else '00:00:00')
             data_by_type[sensor_type]['altitudes'].append(float(reading['altura']) if reading['altura'] else 0)
             data_by_type[sensor_type]['valores'].append(float(reading['valor']) if reading['valor'] else 0)
 
@@ -212,10 +214,10 @@ def get_mission_data_by_id(mission_id):
                 "planvuelo": mission_info['planvuelo']
             },
             "charts": {
-                "velocidad_viento": data_by_type.get('Velocidad_Viento', {'altitudes': [], 'valores': []}),
-                "temperatura": data_by_type.get('Temperatura', {'altitudes': [], 'valores': []}),
-                "presion": data_by_type.get('Presion', {'altitudes': [], 'valores': []}),
-                "humedad": data_by_type.get('Humedad', {'altitudes': [], 'valores': []})
+                "velocidad_viento": data_by_type.get('Velocidad_Viento', {'tiempos': [], 'altitudes': [], 'valores': []}),
+                "temperatura": data_by_type.get('Temperatura', {'tiempos': [], 'altitudes': [], 'valores': []}),
+                "presion": data_by_type.get('Presion', {'tiempos': [], 'altitudes': [], 'valores': []}),
+                "humedad": data_by_type.get('Humedad', {'tiempos': [], 'altitudes': [], 'valores': []})
             }
         }
 

@@ -32,6 +32,7 @@ const AnalyticsView = () => {
     humedad: [],
     altitud: []
   });
+  const [expandedChart, setExpandedChart] = useState(null);
 
   // Poll mission status and data from API in a single request
   useEffect(() => {
@@ -267,11 +268,15 @@ const AnalyticsView = () => {
   return (
     <div className="analytics-view">
       <div className="analytics-header">
-        {missionStarted && (
-          <p>
-            Drones activos en la misión: <span className="drone-count">{activeDrones}</span>
+        <div>
+          <h2 className="view-title">Datos en Tiempo Real</h2>
+          <p className="view-subtitle">
+            Monitoreo de sensores atmosféricos durante misiones activas
+            {missionStarted && (
+              <span> • Drones activos: <span className="drone-count">{activeDrones}</span></span>
+            )}
           </p>
-        )}
+        </div>
       </div>
 
       {showOverlay && (
@@ -293,7 +298,9 @@ const AnalyticsView = () => {
         {charts.map((chart, index) => (
           <div key={index} className="chart-panel">
             <div className="chart-header">
-              <h3>{chart.title} ({chart.unit})</h3>
+              <h3 onClick={() => setExpandedChart(chart)} title="Click para ampliar">
+                {chart.title} ({chart.unit})
+              </h3>
               <span className={`chart-status ${chart.status}`}>
                 {chart.status === 'online' ? '● En línea' : '● Esperando'}
               </span>
@@ -324,6 +331,80 @@ const AnalyticsView = () => {
           </div>
         ))}
       </div>
+
+      {/* Modal for expanded chart */}
+      {expandedChart && (
+        <div className="chart-modal-overlay" onClick={() => setExpandedChart(null)}>
+          <div className="chart-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="chart-modal-header">
+              <h3>{expandedChart.title} ({expandedChart.unit})</h3>
+              <button className="chart-modal-close" onClick={() => setExpandedChart(null)}>
+                ✕ Cerrar
+              </button>
+            </div>
+            <div className="chart-modal-body">
+              <div className="chart-container">
+                <Line
+                  data={expandedChart.data}
+                  options={{
+                    ...chartOptions,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                      ...chartOptions.scales,
+                      y: {
+                        ...chartOptions.scales.y,
+                        title: {
+                          display: true,
+                          text: expandedChart.unit,
+                          font: {
+                            family: 'Montserrat',
+                            size: 16,
+                          },
+                          color: missionStarted ? '#666' : '#ccc',
+                        },
+                        ticks: {
+                          font: {
+                            family: 'Montserrat',
+                            size: 14,
+                          },
+                          color: missionStarted ? '#666' : '#ccc',
+                        },
+                      },
+                      x: {
+                        ...chartOptions.scales.x,
+                        title: {
+                          ...chartOptions.scales.x.title,
+                          font: {
+                            family: 'Montserrat',
+                            size: 16,
+                          },
+                        },
+                        ticks: {
+                          font: {
+                            family: 'Montserrat',
+                            size: 14,
+                          },
+                          color: missionStarted ? '#666' : '#ccc',
+                        },
+                      },
+                    },
+                    elements: {
+                      point: {
+                        radius: missionStarted ? 3 : 0,
+                      },
+                      line: {
+                        tension: 0.1,
+                        borderWidth: 3,
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

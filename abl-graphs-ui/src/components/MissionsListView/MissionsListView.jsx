@@ -26,6 +26,7 @@ const MissionsListView = ({ isConnected }) => {
   const [missionData, setMissionData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [expandedChart, setExpandedChart] = useState(null);
 
   // Fetch missions list on component mount
   useEffect(() => {
@@ -98,7 +99,7 @@ const MissionsListView = ({ isConnected }) => {
         display: true,
         title: {
           display: true,
-          text: 'Altitud (m)',
+          text: 'Tiempo (HH:MM:SS)',
           font: {
             family: 'Montserrat',
             size: 12,
@@ -112,6 +113,8 @@ const MissionsListView = ({ isConnected }) => {
             family: 'Montserrat',
             size: 10,
           },
+          maxRotation: 45,
+          minRotation: 45,
         },
       },
       y: {
@@ -145,8 +148,8 @@ const MissionsListView = ({ isConnected }) => {
     },
   });
 
-  const getChartData = (altitudes, values, label, color) => ({
-    labels: altitudes,
+  const getChartData = (tiempos, values, label, color) => ({
+    labels: tiempos,
     datasets: [
       {
         label: label,
@@ -162,6 +165,12 @@ const MissionsListView = ({ isConnected }) => {
   if (!isConnected) {
     return (
       <div className="missions-list-view">
+        <div className="missions-list-header">
+          <div>
+            <h2 className="view-title">Listado de Misiones</h2>
+            <p className="view-subtitle">Historial de misiones completadas con datos de sensores</p>
+          </div>
+        </div>
         <div className="alert-box">
           <p>⚠️ Debes conectarte a la base de datos para acceder al listado de misiones.</p>
         </div>
@@ -173,10 +182,13 @@ const MissionsListView = ({ isConnected }) => {
     return (
       <div className="missions-list-view">
         <div className="mission-detail-header">
+          <div>
+            <h2 className="view-title">Detalle de Misión: {selectedMission.planvuelo}</h2>
+            <p className="view-subtitle">Información completa y datos de sensores de la misión seleccionada</p>
+          </div>
           <button className="back-button" onClick={handleBackToList}>
             ← Volver
           </button>
-          <h2>Detalle: {selectedMission.planvuelo}</h2>
         </div>
 
         <div className="mission-info-card">
@@ -215,15 +227,29 @@ const MissionsListView = ({ isConnected }) => {
         </div>
 
         <div className="charts-section">
-          <h3>Gráficas según altura</h3>
+          <h3>Gráficas según tiempo</h3>
           <div className="charts-grid">
             {missionData.charts && missionData.charts.velocidad_viento && (
               <div className="chart-card">
-                <h4>Velocidad del Viento</h4>
+                <h4
+                  onClick={() => setExpandedChart({
+                    title: 'Velocidad del Viento',
+                    unit: 'Velocidad (m/s)',
+                    data: getChartData(
+                      missionData.charts.velocidad_viento.tiempos,
+                      missionData.charts.velocidad_viento.valores,
+                      'Velocidad del Viento',
+                      '#3498db'
+                    )
+                  })}
+                  title="Click para ampliar"
+                >
+                  Velocidad del Viento
+                </h4>
                 <div className="chart-wrapper">
                   <Line
                     data={getChartData(
-                      missionData.charts.velocidad_viento.altitudes,
+                      missionData.charts.velocidad_viento.tiempos,
                       missionData.charts.velocidad_viento.valores,
                       'Velocidad del Viento',
                       '#3498db'
@@ -236,11 +262,25 @@ const MissionsListView = ({ isConnected }) => {
 
             {missionData.charts && missionData.charts.temperatura && (
               <div className="chart-card">
-                <h4>Temperatura</h4>
+                <h4
+                  onClick={() => setExpandedChart({
+                    title: 'Temperatura',
+                    unit: 'Temperatura (°C)',
+                    data: getChartData(
+                      missionData.charts.temperatura.tiempos,
+                      missionData.charts.temperatura.valores,
+                      'Temperatura',
+                      '#e74c3c'
+                    )
+                  })}
+                  title="Click para ampliar"
+                >
+                  Temperatura
+                </h4>
                 <div className="chart-wrapper">
                   <Line
                     data={getChartData(
-                      missionData.charts.temperatura.altitudes,
+                      missionData.charts.temperatura.tiempos,
                       missionData.charts.temperatura.valores,
                       'Temperatura',
                       '#e74c3c'
@@ -253,11 +293,25 @@ const MissionsListView = ({ isConnected }) => {
 
             {missionData.charts && missionData.charts.presion && (
               <div className="chart-card">
-                <h4>Presión Atmosférica</h4>
+                <h4
+                  onClick={() => setExpandedChart({
+                    title: 'Presión Atmosférica',
+                    unit: 'Presión (hPa)',
+                    data: getChartData(
+                      missionData.charts.presion.tiempos,
+                      missionData.charts.presion.valores,
+                      'Presión',
+                      '#f39c12'
+                    )
+                  })}
+                  title="Click para ampliar"
+                >
+                  Presión Atmosférica
+                </h4>
                 <div className="chart-wrapper">
                   <Line
                     data={getChartData(
-                      missionData.charts.presion.altitudes,
+                      missionData.charts.presion.tiempos,
                       missionData.charts.presion.valores,
                       'Presión',
                       '#f39c12'
@@ -270,11 +324,25 @@ const MissionsListView = ({ isConnected }) => {
 
             {missionData.charts && missionData.charts.humedad && (
               <div className="chart-card">
-                <h4>Humedad</h4>
+                <h4
+                  onClick={() => setExpandedChart({
+                    title: 'Humedad',
+                    unit: 'Humedad (%)',
+                    data: getChartData(
+                      missionData.charts.humedad.tiempos,
+                      missionData.charts.humedad.valores,
+                      'Humedad',
+                      '#27ae60'
+                    )
+                  })}
+                  title="Click para ampliar"
+                >
+                  Humedad
+                </h4>
                 <div className="chart-wrapper">
                   <Line
                     data={getChartData(
-                      missionData.charts.humedad.altitudes,
+                      missionData.charts.humedad.tiempos,
                       missionData.charts.humedad.valores,
                       'Humedad',
                       '#27ae60'
@@ -286,6 +354,78 @@ const MissionsListView = ({ isConnected }) => {
             )}
           </div>
         </div>
+
+        {/* Modal for expanded chart */}
+        {expandedChart && (
+          <div className="chart-modal-overlay" onClick={() => setExpandedChart(null)}>
+            <div className="chart-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="chart-modal-header">
+                <h3>{expandedChart.title}</h3>
+                <button className="chart-modal-close" onClick={() => setExpandedChart(null)}>
+                  ✕ Cerrar
+                </button>
+              </div>
+              <div className="chart-modal-body">
+                <div className="chart-wrapper">
+                  <Line
+                    data={expandedChart.data}
+                    options={{
+                      ...getChartOptions(expandedChart.unit),
+                      maintainAspectRatio: true,
+                      aspectRatio: 2,
+                      scales: {
+                        ...getChartOptions(expandedChart.unit).scales,
+                        x: {
+                          ...getChartOptions(expandedChart.unit).scales.x,
+                          title: {
+                            ...getChartOptions(expandedChart.unit).scales.x.title,
+                            font: {
+                              family: 'Montserrat',
+                              size: 16,
+                            },
+                          },
+                          ticks: {
+                            ...getChartOptions(expandedChart.unit).scales.x.ticks,
+                            font: {
+                              family: 'Montserrat',
+                              size: 14,
+                            },
+                          },
+                        },
+                        y: {
+                          ...getChartOptions(expandedChart.unit).scales.y,
+                          title: {
+                            ...getChartOptions(expandedChart.unit).scales.y.title,
+                            font: {
+                              family: 'Montserrat',
+                              size: 16,
+                            },
+                          },
+                          ticks: {
+                            ...getChartOptions(expandedChart.unit).scales.y.ticks,
+                            font: {
+                              family: 'Montserrat',
+                              size: 14,
+                            },
+                          },
+                        },
+                      },
+                      elements: {
+                        point: {
+                          radius: 3,
+                        },
+                        line: {
+                          tension: 0.1,
+                          borderWidth: 3,
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -293,7 +433,10 @@ const MissionsListView = ({ isConnected }) => {
   return (
     <div className="missions-list-view">
       <div className="missions-list-header">
-        <h2>Listado de Misiones</h2>
+        <div>
+          <h2 className="view-title">Listado de Misiones</h2>
+          <p className="view-subtitle">Historial de misiones completadas con datos de sensores</p>
+        </div>
         <button className="refresh-button" onClick={fetchMissions} disabled={loading}>
           {loading ? 'Cargando...' : 'Actualizar'}
         </button>

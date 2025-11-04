@@ -1,5 +1,4 @@
 .missions-list-view {
-  padding: 20px;
   background-color: #f8f9fa;
   min-height: 100vh;
   font-family: 'Montserrat', sans-serif;
@@ -9,15 +8,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding: 0 10px;
+  padding: 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+  margin-bottom: 20px;
 }
 
-.missions-list-header h2 {
+.missions-list-header .view-title {
   margin: 0;
-  color: #2c3e50;
   font-size: 28px;
   font-weight: 600;
+  color: #2c3e50;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.missions-list-header .view-subtitle {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: #7f8c8d;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .refresh-button {
@@ -52,7 +61,7 @@
   border-radius: 8px;
   padding: 20px;
   text-align: center;
-  margin: 20px auto;
+  margin: 20px;
   max-width: 600px;
 }
 
@@ -84,6 +93,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  margin: 0 20px;
 }
 
 .missions-table {
@@ -147,9 +157,12 @@
 /* Mission Detail View */
 .mission-detail-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 30px;
+  padding: 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+  margin-bottom: 20px;
 }
 
 .back-button {
@@ -163,6 +176,7 @@
   font-family: 'Montserrat', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .back-button:hover {
@@ -170,18 +184,26 @@
   transform: translateX(-3px);
 }
 
-.mission-detail-header h2 {
+.mission-detail-header .view-title {
   margin: 0;
-  color: #2c3e50;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 600;
+  color: #2c3e50;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.mission-detail-header .view-subtitle {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: #7f8c8d;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .mission-info-card {
   background: white;
   border-radius: 12px;
   padding: 30px;
-  margin-bottom: 30px;
+  margin: 0 20px 30px 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -212,7 +234,7 @@
 }
 
 .charts-section {
-  margin-top: 40px;
+  padding: 0 20px 20px 20px;
 }
 
 .charts-section h3 {
@@ -263,18 +285,27 @@
 }
 
 @media (max-width: 768px) {
-  .missions-list-view {
-    padding: 15px;
-  }
-
   .missions-list-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+    padding: 15px;
   }
 
-  .missions-list-header h2 {
+  .missions-list-header .view-title {
     font-size: 24px;
+  }
+
+  .missions-list-header .view-subtitle {
+    font-size: 13px;
+  }
+
+  .missions-table-container {
+    margin: 0 15px;
+  }
+
+  .alert-box {
+    margin: 15px;
   }
 
   .missions-table-container {
@@ -288,10 +319,25 @@
   .mission-detail-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
   }
 
-  .mission-detail-header h2 {
+  .mission-detail-header .view-title {
     font-size: 22px;
+  }
+
+  .mission-detail-header .view-subtitle {
+    font-size: 13px;
+  }
+
+  .mission-info-card {
+    margin: 0 15px 20px 15px;
+    padding: 20px;
+  }
+
+  .charts-section {
+    padding: 0 15px 15px 15px;
   }
 
   .info-grid {
@@ -319,3 +365,137 @@
     font-size: 12px;
   }
 }
+
+/* Chart Modal - Fullscreen View */
+.chart-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.chart-modal-content {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 95%;
+  max-width: 1400px;
+  height: 85vh;
+  max-height: 900px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.chart-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  border-bottom: 2px solid #e6e6e6;
+  background-color: #fafafa;
+  border-radius: 16px 16px 0 0;
+}
+
+.chart-modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.chart-modal-close {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chart-modal-close:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+.chart-modal-body {
+  flex: 1;
+  padding: 30px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-modal-body .chart-wrapper {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.chart-card h4 {
+  cursor: pointer;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.chart-card h4:hover {
+  color: #3498db;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+  .chart-modal-content {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .chart-modal-header {
+    padding: 15px 20px;
+    border-radius: 0;
+  }
+
+  .chart-modal-header h3 {
+    font-size: 20px;
+  }
+
+  .chart-modal-body {
+    padding: 20px;
+  }
+}
+

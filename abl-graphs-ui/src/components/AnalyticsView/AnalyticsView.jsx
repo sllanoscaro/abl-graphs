@@ -32,7 +32,7 @@ const AnalyticsView = () => {
     humedad: [],
     altitud: []
   });
-  const [expandedChart, setExpandedChart] = useState(null);
+  const [expandedChartIndex, setExpandedChartIndex] = useState(null);
 
   // Poll mission status and data from API in a single request
   useEffect(() => {
@@ -68,9 +68,8 @@ const AnalyticsView = () => {
               altitud
             });
           }
-          // If mission is not active but we had a file, keep the data (pause state)
-          // Only clear data if there was never a mission file
-          else if (!result.status.current_mission_file && !currentMissionFile) {
+          // If mission is not active and no file, clear data
+          else if (!result.status.active && !result.status.current_mission_file) {
             setSensorData({
               timestamps: [],
               presion: [],
@@ -106,7 +105,7 @@ const AnalyticsView = () => {
         intervalId = null;
       }
     };
-  }, [currentMissionFile]);
+  }, []); // Solo ejecutar una vez al montar el componente
 
   // Handle ending the mission manually
   const handleEndMission = async () => {
@@ -298,7 +297,7 @@ const AnalyticsView = () => {
         {charts.map((chart, index) => (
           <div key={index} className="chart-panel">
             <div className="chart-header">
-              <h3 onClick={() => setExpandedChart(chart)} title="Click para ampliar">
+              <h3 onClick={() => setExpandedChartIndex(index)} title="Click para ampliar">
                 {chart.title} ({chart.unit})
               </h3>
               <span className={`chart-status ${chart.status}`}>
@@ -333,19 +332,19 @@ const AnalyticsView = () => {
       </div>
 
       {/* Modal for expanded chart */}
-      {expandedChart && (
-        <div className="chart-modal-overlay" onClick={() => setExpandedChart(null)}>
+      {expandedChartIndex !== null && charts[expandedChartIndex] && (
+        <div className="chart-modal-overlay" onClick={() => setExpandedChartIndex(null)}>
           <div className="chart-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="chart-modal-header">
-              <h3>{expandedChart.title} ({expandedChart.unit})</h3>
-              <button className="chart-modal-close" onClick={() => setExpandedChart(null)}>
+              <h3>{charts[expandedChartIndex].title} ({charts[expandedChartIndex].unit})</h3>
+              <button className="chart-modal-close" onClick={() => setExpandedChartIndex(null)}>
                 ✕ Cerrar
               </button>
             </div>
             <div className="chart-modal-body">
               <div className="chart-container">
                 <Line
-                  data={expandedChart.data}
+                  data={charts[expandedChartIndex].data}
                   options={{
                     ...chartOptions,
                     maintainAspectRatio: true,
@@ -356,7 +355,7 @@ const AnalyticsView = () => {
                         ...chartOptions.scales.y,
                         title: {
                           display: true,
-                          text: expandedChart.unit,
+                          text: charts[expandedChartIndex].unit,
                           font: {
                             family: 'Montserrat',
                             size: 16,

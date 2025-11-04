@@ -37,11 +37,6 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
-}
-
-.panel:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .panel-header {
@@ -67,38 +62,46 @@
 }
 
 .ghost-btn, .primary-btn {
-    border: 1px solid #d0d5dd;
-    background: #fff;
-    color: #344054;
-    padding: 8px 16px;
+    border: none;
+    padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     font-family: 'Montserrat', sans-serif;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+}
+
+.ghost-btn {
+    background-color: #3498db;
+    color: white;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.ghost-btn:hover:not(:disabled) {
+    background-color: #2980b9;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+    transform: translateY(-2px);
 }
 
 .primary-btn {
-    background: #1976d2;
+    background: #27ae60;
     color: #fff;
-    border-color: #1976d2;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
 }
 
-.ghost-btn:hover {
-    background: #f3f4f6;
-    transform: translateY(-1px);
-}
-
-.primary-btn:hover {
-    background: #1565c0;
-    transform: translateY(-1px);
+.primary-btn:hover:not(:disabled) {
+    background: #229954;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+    transform: translateY(-2px);
 }
 
 .ghost-btn:disabled, .primary-btn:disabled {
-    opacity: 0.6;
+    background-color: #95a5a6;
     cursor: not-allowed;
+    opacity: 0.7;
     transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .empty {
@@ -130,27 +133,27 @@
 
 .mission-item {
     padding: 16px 20px;
-    margin: 12px 16px;
+    margin: 8px 16px;
     background-color: #f8f9fa;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
 .mission-item:hover {
-    background: #e3f2fd;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #e8f4f8;
+    border-color: #d1e7f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .mission-item.selected {
-    background-color: #e0f7fa;
-    border-color: #26a69a;
-    box-shadow: 0 2px 8px rgba(38, 166, 154, 0.2);
+    background-color: #d4edda;
+    border-color: #27ae60;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.2);
 }
 
 .mission-title {
@@ -243,7 +246,7 @@
     width: 18px;
     height: 18px;
     cursor: pointer;
-    accent-color: #1976d2;
+    accent-color: #27ae60;
 }
 
 .mission-content {
@@ -261,6 +264,16 @@
     font-size: 14px;
     color: #2c3e50;
     font-weight: 500;
+}
+
+.selection-summary .warning-text {
+    color: #f59e0b;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .plot-panel {

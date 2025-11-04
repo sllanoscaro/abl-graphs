@@ -135,12 +135,16 @@ export default function ReportsView({ isConnected, endpoint }) {
 
           <div className="selection-summary">
             <p>{selectedMissions.length} misión(es) seleccionada(s)</p>
+            {selectedMissions.length < 2 && (
+              <p className="warning-text">⚠ Debes seleccionar al menos 2 misiones para generar el gráfico</p>
+            )}
             <div className="form-actions">
               <button
                 type="button"
                 className="primary-btn"
-                disabled={selectedMissions.length === 0 || loadingPlot}
+                disabled={selectedMissions.length < 2 || loadingPlot}
                 onClick={generatePlot}
+                title={selectedMissions.length < 2 ? 'Selecciona al menos 2 misiones' : ''}
               >
                 {loadingPlot ? 'Generando...' : 'Generar Gráfico'}
               </button>
@@ -162,11 +166,6 @@ export default function ReportsView({ isConnected, endpoint }) {
             <h3>Mapa de Contornos - Velocidad del Viento</h3>
           </div>
 
-          {!plotData && (
-            <div className="overlay-locked">
-              <p>Selecciona una o más misiones y genera el gráfico para visualizar los datos.</p>
-            </div>
-          )}
 
           {plotData && (
             <div className="plot-container">

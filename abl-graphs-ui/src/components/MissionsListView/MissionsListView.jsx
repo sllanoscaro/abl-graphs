@@ -28,6 +28,12 @@ const MissionsListView = ({ isConnected }) => {
   const [error, setError] = useState(null);
   const [expandedChart, setExpandedChart] = useState(null);
 
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
   // Fetch missions list on component mount
   useEffect(() => {
     if (isConnected) {
@@ -83,6 +89,93 @@ const MissionsListView = ({ isConnected }) => {
   const handleBackToList = () => {
     setSelectedMission(null);
     setMissionData(null);
+  };
+
+  // Sort function
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Filter and sort missions
+  const getFilteredAndSortedMissions = () => {
+    let filtered = [...missions];
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(mission =>
+        mission.idmision.toString().includes(searchTerm) ||
+        mission.planvuelo.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply date range filter
+    if (startDate) {
+      filtered = filtered.filter(mission => {
+        if (!mission.fechahora) return false;
+        const missionDate = new Date(mission.fechahora);
+        return missionDate >= new Date(startDate);
+      });
+    }
+
+    if (endDate) {
+      filtered = filtered.filter(mission => {
+        if (!mission.fechahora) return false;
+        const missionDate = new Date(mission.fechahora);
+        // Set end date to end of day
+        const endOfDay = new Date(endDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        return missionDate <= endOfDay;
+      });
+    }
+
+    // Apply sorting
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Handle date sorting
+        if (sortConfig.key === 'fechahora') {
+          aValue = aValue ? new Date(aValue).getTime() : 0;
+          bValue = bValue ? new Date(bValue).getTime() : 0;
+        }
+
+        // Handle numeric sorting
+        if (sortConfig.key === 'idmision') {
+          aValue = Number(aValue);
+          bValue = Number(bValue);
+        }
+
+        // Handle string sorting
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  };
+
+  const filteredMissions = getFilteredAndSortedMissions();
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setStartDate('');
+    setEndDate('');
+    setSortConfig({ key: null, direction: 'asc' });
   };
 
   // Chart configuration
@@ -227,7 +320,6 @@ const MissionsListView = ({ isConnected }) => {
         </div>
 
         <div className="charts-section">
-          <h3>Gráficas según tiempo</h3>
           <div className="charts-grid">
             {missionData.charts && missionData.charts.velocidad_viento && (
               <div className="chart-card">
@@ -457,45 +549,151 @@ const MissionsListView = ({ isConnected }) => {
           <p>No hay misiones registradas en la base de datos.</p>
         </div>
       ) : (
-        <div className="missions-table-container">
-          <table className="missions-table">
-            <thead>
-              <tr>
-                <th>ID Misión</th>
-                <th>Plan de Vuelo</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {missions.map((mission) => (
-                <tr key={mission.idmision}>
-                  <td>{mission.idmision}</td>
-                  <td>{mission.planvuelo}</td>
-                  <td>
-                    {mission.fechahora
-                      ? new Date(mission.fechahora).toLocaleString('es-ES', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })
-                      : 'N/A'}
-                  </td>
-                  <td>
-                    <button
-                      className="view-button"
-                      onClick={() => handleMissionSelect(mission)}
+        <>
+          {/* Search and Filter Controls */}
+          <div className="filter-controls">
+            <div className="search-box">
+              <input
+                type="text"
+                placeholder="Buscar por ID o Plan de Vuelo..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              {searchTerm && (
+                <button
+                  className="clear-search-btn"
+                  onClick={() => setSearchTerm('')}
+                  title="Limpiar búsqueda"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <div className="date-filters">
+              <div className="date-input-group">
+                <label htmlFor="start-date">Desde:</label>
+                <input
+                  id="start-date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="date-input"
+                />
+              </div>
+
+              <div className="date-input-group">
+                <label htmlFor="end-date">Hasta:</label>
+                <input
+                  id="end-date"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="date-input"
+                />
+              </div>
+
+              {(searchTerm || startDate || endDate) && (
+                <button
+                  className="clear-filters-btn"
+                  onClick={clearFilters}
+                  title="Limpiar todos los filtros"
+                >
+                  Limpiar Filtros
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Results count */}
+          {filteredMissions.length !== missions.length && (
+            <div className="results-count">
+              Mostrando {filteredMissions.length} de {missions.length} misiones
+            </div>
+          )}
+
+          {filteredMissions.length === 0 && (
+            <div className="no-results-overlay">
+              <p>No se encontraron misiones con los filtros aplicados.</p>
+            </div>
+          )}
+
+          {filteredMissions.length > 0 && (
+            <div className="missions-table-container">
+              <table className="missions-table">
+                <thead>
+                  <tr>
+                    <th
+                      onClick={() => handleSort('idmision')}
+                      className="sortable-header"
+                      title="Click para ordenar"
                     >
-                      Ver Detalles
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      ID Misión
+                      {sortConfig.key === 'idmision' && (
+                        <span className="sort-indicator">
+                          {sortConfig.direction === 'asc' ? ' ▲' : ' ▼'}
+                        </span>
+                      )}
+                    </th>
+                    <th
+                      onClick={() => handleSort('planvuelo')}
+                      className="sortable-header"
+                      title="Click para ordenar"
+                    >
+                      Plan de Vuelo
+                      {sortConfig.key === 'planvuelo' && (
+                        <span className="sort-indicator">
+                          {sortConfig.direction === 'asc' ? ' ▲' : ' ▼'}
+                        </span>
+                      )}
+                    </th>
+                    <th
+                      onClick={() => handleSort('fechahora')}
+                      className="sortable-header"
+                      title="Click para ordenar"
+                    >
+                      Fecha
+                      {sortConfig.key === 'fechahora' && (
+                        <span className="sort-indicator">
+                          {sortConfig.direction === 'asc' ? ' ▲' : ' ▼'}
+                        </span>
+                      )}
+                    </th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredMissions.map((mission) => (
+                    <tr key={mission.idmision}>
+                      <td>{mission.idmision}</td>
+                      <td>{mission.planvuelo}</td>
+                      <td>
+                        {mission.fechahora
+                          ? new Date(mission.fechahora).toLocaleString('es-ES', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : 'N/A'}
+                      </td>
+                      <td>
+                        <button
+                          className="view-button"
+                          onClick={() => handleMissionSelect(mission)}
+                        >
+                          Ver Detalles
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

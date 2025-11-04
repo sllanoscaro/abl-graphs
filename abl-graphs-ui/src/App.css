@@ -9,5 +9,5 @@ body {
   min-height: 100vh; /* asegura altura completa */
   display: flex;
   flex-direction: column;
-  background-color: #dfdfdf; /* gris claro */
+  background-color: #f8f9fa; /* gris claro */
 }

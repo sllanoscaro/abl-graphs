@@ -34,6 +34,11 @@ const MissionsListView = ({ isConnected }) => {
   const [endDate, setEndDate] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [showPageSizeSelector, setShowPageSizeSelector] = useState(false);
+
   // Fetch missions list on component mount
   useEffect(() => {
     if (isConnected) {
@@ -171,11 +176,70 @@ const MissionsListView = ({ isConnected }) => {
 
   const filteredMissions = getFilteredAndSortedMissions();
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredMissions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentMissions = filteredMissions.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, startDate, endDate, sortConfig.key, sortConfig.direction]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll to top of table
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleItemsPerPageChange = (newSize) => {
+    setItemsPerPage(newSize);
+    setCurrentPage(1);
+    setShowPageSizeSelector(false);
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 7;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 4) {
+        for (let i = 1; i <= 5; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
+
   const clearFilters = () => {
     setSearchTerm('');
     setStartDate('');
     setEndDate('');
     setSortConfig({ key: null, direction: 'asc' });
+    setCurrentPage(1);
   };
 
   // Chart configuration
@@ -606,12 +670,44 @@ const MissionsListView = ({ isConnected }) => {
             </div>
           </div>
 
-          {/* Results count */}
-          {filteredMissions.length !== missions.length && (
-            <div className="results-count">
-              Mostrando {filteredMissions.length} de {missions.length} misiones
+          {/* Results count and page size selector */}
+          <div className="results-controls">
+            {filteredMissions.length !== missions.length && (
+              <div className="results-count">
+                Mostrando {startIndex + 1}-{Math.min(endIndex, filteredMissions.length)} de {filteredMissions.length} misiones
+              </div>
+            )}
+            {filteredMissions.length === missions.length && filteredMissions.length > 0 && (
+              <div className="results-count">
+                Total: {filteredMissions.length} misiones
+              </div>
+            )}
+
+            <div className="page-size-selector-container">
+              <label htmlFor="page-size-selector">Misiones por página:</label>
+              <div className="page-size-dropdown">
+                <button
+                  className="page-size-button"
+                  onClick={() => setShowPageSizeSelector(!showPageSizeSelector)}
+                >
+                  {itemsPerPage} ▼
+                </button>
+                {showPageSizeSelector && (
+                  <div className="page-size-options">
+                    {[5, 10, 15, 20, 25, 50].map(size => (
+                      <button
+                        key={size}
+                        className={`page-size-option ${itemsPerPage === size ? 'active' : ''}`}
+                        onClick={() => handleItemsPerPageChange(size)}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </div>
 
           {filteredMissions.length === 0 && (
             <div className="no-results-overlay">
@@ -664,7 +760,7 @@ const MissionsListView = ({ isConnected }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMissions.map((mission) => (
+                  {currentMissions.map((mission) => (
                     <tr key={mission.idmision}>
                       <td>{mission.idmision}</td>
                       <td>{mission.planvuelo}</td>
@@ -691,6 +787,52 @@ const MissionsListView = ({ isConnected }) => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {filteredMissions.length > 0 && totalPages > 1 && (
+            <div className="pagination-container">
+              <div className="pagination-info">
+                Página {currentPage} de {totalPages}
+              </div>
+              <div className="pagination-controls">
+                <button
+                  className="pagination-btn pagination-btn-prev"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  title="Página anterior"
+                >
+                  ← Anterior
+                </button>
+
+                <div className="pagination-numbers">
+                  {getPageNumbers().map((page, index) => (
+                    page === '...' ? (
+                      <span key={`ellipsis-${index}`} className="pagination-ellipsis">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={page}
+                        className={`pagination-number ${currentPage === page ? 'active' : ''}`}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </button>
+                    )
+                  ))}
+                </div>
+
+                <button
+                  className="pagination-btn pagination-btn-next"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  title="Página siguiente"
+                >
+                  Siguiente →
+                </button>
+              </div>
             </div>
           )}
         </>

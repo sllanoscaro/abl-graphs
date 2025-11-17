@@ -34,7 +34,7 @@ export default function NavigationTabs({ activeTab, onChange, reportsDisabled, m
           onClick={() => missionsDisabled ? handleDisabledClick() : onChange("missions")}
           type="button"
         >
-          Listado de misiones
+          Registro de misiones
         </button>
 
         <button

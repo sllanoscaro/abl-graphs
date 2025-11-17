@@ -144,7 +144,7 @@ const AnalyticsView = () => {
   // Determine overlay message based on mission state
   const getOverlayMessage = () => {
     if (!currentMissionFile) {
-      return "Esperando datos...";
+      return "No se registran datos entrantes.";
     } else if (currentMissionFile && !missionStarted) {
       return "Datos interrumpidos. ¿La misión terminó?";
     }
@@ -171,7 +171,7 @@ const AnalyticsView = () => {
         display: true,
         title: {
           display: true,
-          text: 'Tiempo (muestras)',
+          text: 'tiempo',
           font: {
             family: 'Montserrat',
             size: 12,
@@ -267,15 +267,18 @@ const AnalyticsView = () => {
   return (
     <div className="analytics-view">
       <div className="analytics-header">
-        <div>
-          <h2 className="view-title">Datos en Tiempo Real</h2>
-          <p className="view-subtitle">
-            Monitoreo de sensores atmosféricos durante misiones activas
-            {missionStarted && (
-              <span> • Drones activos: <span className="drone-count">{activeDrones}</span></span>
-            )}
-          </p>
-        </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <img src="legumbres.png" alt="Logo" className="logo" />
+              <div>
+                  <h2 className="view-title">Misión en tiempo real</h2>
+                  <p className="view-subtitle">
+                      En esta sección podrás ver las gráficas de los datos recolectados en tiempo real.
+                      {missionStarted && (
+                          <span> • Drones activos: <span className="drone-count">{activeDrones}</span></span>
+                      )}
+                  </p>
+              </div>
+          </div>
       </div>
 
       {showOverlay && (
@@ -297,12 +300,9 @@ const AnalyticsView = () => {
         {charts.map((chart, index) => (
           <div key={index} className="chart-panel">
             <div className="chart-header">
-              <h3 onClick={() => setExpandedChartIndex(index)} title="Click para ampliar">
+              <h3 onClick={() => setExpandedChartIndex(index)} title="Haz click para ampliar el gráfico">
                 {chart.title} ({chart.unit})
               </h3>
-              <span className={`chart-status ${chart.status}`}>
-                {chart.status === 'online' ? '● En línea' : '● Esperando'}
-              </span>
             </div>
             <div className="chart-container">
               <Line

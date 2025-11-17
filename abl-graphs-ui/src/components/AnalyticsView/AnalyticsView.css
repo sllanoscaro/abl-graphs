@@ -81,29 +81,6 @@
   font-family: 'Montserrat', sans-serif;
 }
 
-.chart-status {
-  font-size: 14px;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-family: 'Montserrat', sans-serif;
-}
-
-.chart-status.online {
-  color: #27ae60;
-  background-color: rgba(39, 174, 96, 0.1);
-}
-
-.chart-status.offline {
-  color: #e74c3c;
-  background-color: rgba(231, 76, 60, 0.1);
-}
-
-.chart-status.waiting {
-    color: #e7b73c;
-    background-color: rgba(231, 151, 60, 0.1);
-}
-
 .chart-container {
   padding: 20px;
   height: 300px;
@@ -174,9 +151,6 @@
     font-size: 16px;
   }
 
-  .chart-status {
-    font-size: 12px;
-  }
 }
 
 /* Overlay for locked/waiting state */

@@ -77,9 +77,12 @@ export default function ReportsView({ isConnected, endpoint }) {
   return (
     <section className="reports-container">
       <div className="reports-header">
-        <div>
-          <h2 className="view-title">Reportes</h2>
-          <p className="view-subtitle">Generación de mapas de contornos a partir de misiones finalizadas</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <img src="estadisticas.png" alt="Logo" className="logo" />
+            <div>
+                <h2 className="view-title">Generación de informes</h2>
+                <p className="view-subtitle">En esta sección podrás generar informes con gráficas de contornos para varias misiones.</p>
+            </div>
         </div>
       </div>
 

@@ -319,22 +319,6 @@ const MissionsListView = ({ isConnected }) => {
     ],
   });
 
-  if (!isConnected) {
-    return (
-      <div className="missions-list-view">
-        <div className="missions-list-header">
-          <div>
-            <h2 className="view-title">Listado de Misiones</h2>
-            <p className="view-subtitle">Historial de misiones completadas con datos de sensores</p>
-          </div>
-        </div>
-        <div className="alert-box">
-          <p>⚠️ Debes conectarte a la base de datos para acceder al listado de misiones.</p>
-        </div>
-      </div>
-    );
-  }
-
   if (selectedMission && missionData) {
     return (
       <div className="missions-list-view">
@@ -589,9 +573,12 @@ const MissionsListView = ({ isConnected }) => {
   return (
     <div className="missions-list-view">
       <div className="missions-list-header">
-        <div>
-          <h2 className="view-title">Listado de Misiones</h2>
-          <p className="view-subtitle">Historial de misiones completadas con datos de sensores</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <img src="lista-de-rectangulos.png" alt="Logo" className="logo" />
+            <div>
+                <h2 className="view-title">Registro de misiones</h2>
+                <p className="view-subtitle">En esta sección podrás consultar todas las misiones que se encuentren registradas en la base de datos.</p>
+            </div>
         </div>
         <button className="refresh-button" onClick={fetchMissions} disabled={loading}>
           {loading ? 'Cargando...' : 'Actualizar'}

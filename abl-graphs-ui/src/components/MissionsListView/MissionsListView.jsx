@@ -322,15 +322,19 @@ const MissionsListView = ({ isConnected }) => {
   if (selectedMission && missionData) {
     return (
       <div className="missions-list-view">
-        <div className="mission-detail-header">
-          <div>
-            <h2 className="view-title">Detalle de Misión: {selectedMission.planvuelo}</h2>
-            <p className="view-subtitle">Información completa y datos de sensores de la misión seleccionada</p>
+          <div className="mission-detail-header" style={{ display: 'flex', alignItems: 'center' }}>
+              <button
+                  className="back-button"
+                  onClick={handleBackToList}
+                  style={{ position: 'absolute', left: 25 }}
+              >
+                  ← Volver
+              </button>
+              <div style={{ flex: 1, textAlign: 'center' }}>
+                  <h2 className="view-title">Detalle de misión: {selectedMission.planvuelo}</h2>
+                  <p className="view-subtitle">Consulta la información completa de la misión seleccionada.</p>
+              </div>
           </div>
-          <button className="back-button" onClick={handleBackToList}>
-            ← Volver
-          </button>
-        </div>
 
         <div className="mission-info-card">
           <div className="info-grid">
@@ -581,7 +585,7 @@ const MissionsListView = ({ isConnected }) => {
             </div>
         </div>
         <button className="refresh-button" onClick={fetchMissions} disabled={loading}>
-          {loading ? 'Cargando...' : 'Actualizar'}
+          {loading ? 'Cargando...' : '↻ Actualizar'}
         </button>
       </div>
 
@@ -606,7 +610,7 @@ const MissionsListView = ({ isConnected }) => {
             <div className="search-box">
               <input
                 type="text"
-                placeholder="Buscar por ID o Plan de Vuelo..."
+                placeholder="Buscar por ID o nombre de plan de vuelo..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="search-input"
@@ -784,15 +788,6 @@ const MissionsListView = ({ isConnected }) => {
                 Página {currentPage} de {totalPages}
               </div>
               <div className="pagination-controls">
-                <button
-                  className="pagination-btn pagination-btn-prev"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  title="Página anterior"
-                >
-                  ← Anterior
-                </button>
-
                 <div className="pagination-numbers">
                   {getPageNumbers().map((page, index) => (
                     page === '...' ? (
@@ -810,15 +805,6 @@ const MissionsListView = ({ isConnected }) => {
                     )
                   ))}
                 </div>
-
-                <button
-                  className="pagination-btn pagination-btn-next"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  title="Página siguiente"
-                >
-                  Siguiente →
-                </button>
               </div>
             </div>
           )}

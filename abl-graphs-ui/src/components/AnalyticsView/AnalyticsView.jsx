@@ -171,7 +171,7 @@ const AnalyticsView = () => {
         display: true,
         title: {
           display: true,
-          text: 'tiempo',
+          text: 'Tiempo (s)',
           font: {
             family: 'Montserrat',
             size: 12,
@@ -234,31 +234,31 @@ const AnalyticsView = () => {
   const charts = [
     {
       title: 'Velocidad del Viento',
-      unit: 'm/s',
+      unit: 'Velocidad (m/s)',
       data: getChartData('Velocidad del viento', '#3498db', 'velocidad'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
       title: 'Temperatura',
-      unit: '°C',
+      unit: 'Temperatura (°C)',
       data: getChartData('Temperatura', '#e74c3c', 'temperatura'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
       title: 'Presión Atmosférica',
-      unit: 'hPa',
+      unit: 'Presión (hPa)',
       data: getChartData('Presión', '#f39c12', 'presion'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
       title: 'Humedad',
-      unit: '%',
+      unit: 'Humedad (%)',
       data: getChartData('Humedad', '#27ae60', 'humedad'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
       title: 'Altura',
-      unit: 'm',
+      unit: 'Altura (m)',
       data: getChartData('Altura', '#9b59b6', 'altitud'),
       status: missionStarted ? 'online' : 'waiting'
     },
@@ -301,7 +301,7 @@ const AnalyticsView = () => {
           <div key={index} className="chart-panel">
             <div className="chart-header">
               <h3 onClick={() => setExpandedChartIndex(index)} title="Haz click para ampliar el gráfico">
-                {chart.title} ({chart.unit})
+                {chart.title}
               </h3>
             </div>
             <div className="chart-container">
@@ -336,7 +336,7 @@ const AnalyticsView = () => {
         <div className="chart-modal-overlay" onClick={() => setExpandedChartIndex(null)}>
           <div className="chart-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="chart-modal-header">
-              <h3>{charts[expandedChartIndex].title} ({charts[expandedChartIndex].unit})</h3>
+              <h3>{charts[expandedChartIndex].title}</h3>
               <button className="chart-modal-close" onClick={() => setExpandedChartIndex(null)}>
                 ✕ Cerrar
               </button>

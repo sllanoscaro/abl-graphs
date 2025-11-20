@@ -35,9 +35,25 @@ MQTT_HOST = os.getenv('MQTT_HOST', 'localhost')
 MQTT_PORT = os.getenv('MQTT_PORT', '1883')
 mqtt_client = None
 
+# Global storage for sensor data during mission
+mission_sensor_data = []
+
+# Callback function to store averaged sensor data
+def store_sensor_data(averaged_data):
+    """Callback invoked when SensorDataAggregator emits averaged data"""
+    global mission_sensor_data
+
+    # None signal means clear the data (mission ended)
+    if averaged_data is None:
+        mission_sensor_data.clear()
+    else:
+        mission_sensor_data.append(averaged_data)
 
 # Initialize MQTT client and set up callbacks
 def initialize_mqtt_client():
+    # Setup data storage callback
+    SensorDataAggregator.aggregator.on_data_averaged_callback = store_sensor_data
+
     client_id = f"abl-graphs-{os.getpid()}"
     client = mqtt.Client(client_id=client_id, callback_api_version=mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = SensorDataAggregator.on_connect
@@ -113,6 +129,29 @@ def get_mission_status():
         logger.error("Error fetching mission status: %s", str(missionStatusExceptionMsg))
         return jsonify({"error": str(missionStatusExceptionMsg)}), 500
 
+# Endpoint to get real-time mission data and status
+@app.route("/api/mission/realtime", methods=["GET"])
+def get_mission_realtime():
+    try:
+        global mission_sensor_data
+
+        # Simple status: always 1 active drone if mission is active
+        is_active = SensorDataAggregator.aggregator.mission_active
+
+        status = {
+            "active": is_active,
+            "status_message": SensorDataAggregator.aggregator.mission_status_message,
+            "active_drones": 1 if is_active else 0
+        }
+
+        return jsonify({
+            "status": status,
+            "data": mission_sensor_data
+        }), 200
+
+    except Exception as e:
+        logger.error("Error fetching mission realtime data: %s", str(e))
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     try:

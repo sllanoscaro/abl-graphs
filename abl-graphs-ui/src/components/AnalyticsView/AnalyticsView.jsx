@@ -21,16 +21,14 @@ ChartJS.register(
 );
 
 const AnalyticsView = () => {
-  const [activeDrones, setActiveDrones] = useState(0);
   const [missionStarted, setMissionStarted] = useState(false);
-  const [currentMissionFile, setCurrentMissionFile] = useState(null);
-  const [isEndingMission, setIsEndingMission] = useState(false);
   const [sensorData, setSensorData] = useState({
     timestamps: [],
+    velocidad_viento: [],
     presion: [],
     temperatura: [],
     humedad: [],
-    altitud: []
+    altura: []
   });
   const [expandedChartIndex, setExpandedChartIndex] = useState(null);
 
@@ -49,36 +47,36 @@ const AnalyticsView = () => {
 
           // Update mission status
           setMissionStarted(result.status.active);
-          setActiveDrones(result.status.active_drones);
-          setCurrentMissionFile(result.status.current_mission_file);
 
           // Update sensor data if mission is active and has data
           if (result.status.active && result.data.length > 0) {
-            const timestamps = result.data.map((entry, index) => index);
-            const presion = result.data.map(entry => entry.presion);
-            const temperatura = result.data.map(entry => entry.temperatura);
-            const humedad = result.data.map(entry => entry.humedad);
-            const altitud = result.data.map(entry => entry.altitud);
+            const timestamps = result.data.map(entry => entry.timestamp || '');
+            const velocidad_viento = result.data.map(entry => entry.velocidad_viento || 0);
+            const presion = result.data.map(entry => entry.presion || 0);
+            const temperatura = result.data.map(entry => entry.temperatura || 0);
+            const humedad = result.data.map(entry => entry.humedad || 0);
+            const altura = result.data.map(entry => entry.altura || 0);
 
             setSensorData({
               timestamps,
+              velocidad_viento,
               presion,
               temperatura,
               humedad,
-              altitud
+              altura
             });
           }
-          // If mission is not active and no file, clear data
-          else if (!result.status.active && !result.status.current_mission_file) {
+          // If mission is not active, clear data
+          else if (!result.status.active) {
             setSensorData({
               timestamps: [],
+              velocidad_viento: [],
               presion: [],
               temperatura: [],
               humedad: [],
-              altitud: []
+              altura: []
             });
           }
-          // else: keep existing data (paused state)
         }
       } catch (error) {
         if (isMounted) {
@@ -95,7 +93,7 @@ const AnalyticsView = () => {
       if (isMounted) {
         fetchMissionRealtime();
       }
-    }, 1000); // Update every second
+    }, 1000);
 
     // Cleanup function
     return () => {
@@ -105,54 +103,14 @@ const AnalyticsView = () => {
         intervalId = null;
       }
     };
-  }, []); // Solo ejecutar una vez al montar el componente
-
-  // Handle ending the mission manually
-  const handleEndMission = async () => {
-    setIsEndingMission(true);
-
-    try {
-      const response = await fetch('http://localhost:5000/api/mission/stop', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // Reset all state
-        setMissionStarted(false);
-        setActiveDrones(0);
-        setCurrentMissionFile(null);
-        setSensorData({
-          timestamps: [],
-          presion: [],
-          temperatura: [],
-          humedad: [],
-          altitud: []
-        });
-      } else {
-        console.error('Error ending mission');
-      }
-    } catch (error) {
-      console.error('Error ending mission:', error);
-    } finally {
-      setIsEndingMission(false);
-    }
-  };
+  }, []);
 
   // Determine overlay message based on mission state
   const getOverlayMessage = () => {
-    if (!currentMissionFile) {
-      return "No se registran datos entrantes.";
-    } else if (currentMissionFile && !missionStarted) {
-      return "Datos interrumpidos. ¿La misión terminó?";
-    }
-    return "";
+    return "No se registran datos entrantes.";
   };
 
   const showOverlay = !missionStarted;
-  const showEndMissionButton = currentMissionFile && !missionStarted;
 
   // Configuración base para todos los gráficos
   const chartOptions = {
@@ -216,7 +174,7 @@ const AnalyticsView = () => {
     },
   };
 
-  // Datos específicos para cada gráfico con colores diferentes
+  // Setup chart data
   const getChartData = (label, color, dataKey) => ({
     labels: sensorData.timestamps,
     datasets: [
@@ -235,7 +193,7 @@ const AnalyticsView = () => {
     {
       title: 'Velocidad del Viento',
       unit: 'Velocidad (m/s)',
-      data: getChartData('Velocidad del viento', '#3498db', 'velocidad'),
+      data: getChartData('Velocidad del viento', '#3498db', 'velocidad_viento'),
       status: missionStarted ? 'online' : 'waiting'
     },
     {
@@ -246,7 +204,7 @@ const AnalyticsView = () => {
     },
     {
       title: 'Presión Atmosférica',
-      unit: 'Presión (hPa)',
+      unit: 'Presión (Pa)',
       data: getChartData('Presión', '#f39c12', 'presion'),
       status: missionStarted ? 'online' : 'waiting'
     },
@@ -259,7 +217,7 @@ const AnalyticsView = () => {
     {
       title: 'Altura',
       unit: 'Altura (m)',
-      data: getChartData('Altura', '#9b59b6', 'altitud'),
+      data: getChartData('Altura', '#9b59b6', 'altura'),
       status: missionStarted ? 'online' : 'waiting'
     },
   ];
@@ -274,7 +232,7 @@ const AnalyticsView = () => {
                   <p className="view-subtitle">
                       En esta sección podrás ver las gráficas de los datos recolectados en tiempo real.
                       {missionStarted && (
-                          <span> • Drones activos: <span className="drone-count">{activeDrones}</span></span>
+                          <span> • Drones activos: <span className="drone-count">1</span></span>
                       )}
                   </p>
               </div>
@@ -284,15 +242,6 @@ const AnalyticsView = () => {
       {showOverlay && (
         <div className="overlay-locked">
           <p>{getOverlayMessage()}</p>
-          {showEndMissionButton && (
-            <button
-              className="end-mission-button"
-              onClick={handleEndMission}
-              disabled={isEndingMission}
-            >
-              {isEndingMission ? 'Terminando misión...' : 'Terminar misión'}
-            </button>
-          )}
         </div>
       )}
 

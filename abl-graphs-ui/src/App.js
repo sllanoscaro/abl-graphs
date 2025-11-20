@@ -6,12 +6,6 @@ import AnalyticsView from "./components/AnalyticsView/AnalyticsView";
 import MissionsListView from "./components/MissionsListView/MissionsListView";
 import './App.css';
 
-// TODO:
-// - Implementar la generación de informes en ReportsView.
-// - Aplicar ETL donde sea necesario.
-// - Conectar datos reales de archivos JSON para Analytics.
-// - Generación de gráficas con chart.js para Analytics y plotly.js para ReportsView.
-
 export default function App() {
   const [activeTab, setActiveTab] = useState("analytics"); // Ventana de navegación activa
   const [isConnected, setIsConnected] = useState(false); // Botón de conexión DB

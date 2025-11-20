@@ -1,7 +1,7 @@
 import json
 import time
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Callable, Optional
 
 
 class SensorDataAggregator:
@@ -20,6 +20,9 @@ class SensorDataAggregator:
         # Mission state tracking
         self.mission_active = False
         self.mission_status_message = "Waiting for mission..."
+
+        # Callback for storing averaged data
+        self.on_data_averaged_callback: Optional[Callable[[Dict[str, Any]], None]] = None
 
     def add_anemometer_data(self, data: Dict[str, Any]) -> None:
         if 'velocidadViento' in data:
@@ -181,6 +184,10 @@ def on_message(client, userdata, msg):
                     elif any(word in msg_lower for word in ["abortando", "pausando", "stopped", "detenida",
                                                             "detenido", "finished", "finalizada", "completada",
                                                             "terminada", "invalida"]):
+                        # Clear data when mission ends
+                        if aggregator.mission_active and aggregator.on_data_averaged_callback:
+                            # Signal to clear data by calling callback with None
+                            aggregator.on_data_averaged_callback(None)
                         aggregator.mission_active = False
             return
 
@@ -200,6 +207,10 @@ def on_message(client, userdata, msg):
         # Check if it's time to emit averaged data (every 1 second)
         if aggregator.should_emit() and aggregator.mission_active:
             averaged_data = aggregator.get_averaged_data()
+
+            # Store data via callback if available
+            if averaged_data and aggregator.on_data_averaged_callback:
+                aggregator.on_data_averaged_callback(averaged_data)
 
     except json.JSONDecodeError as e:
         pass

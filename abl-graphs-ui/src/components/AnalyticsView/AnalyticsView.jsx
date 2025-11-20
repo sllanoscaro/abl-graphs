@@ -31,6 +31,8 @@ const AnalyticsView = () => {
     altura: []
   });
   const [expandedChartIndex, setExpandedChartIndex] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [timeWindowSeconds, setTimeWindowSeconds] = useState(60); // Default: 60 seconds
 
   // Poll mission status and data from API in a single request
   useEffect(() => {
@@ -57,13 +59,16 @@ const AnalyticsView = () => {
             const humedad = result.data.map(entry => entry.humedad || 0);
             const altura = result.data.map(entry => entry.altura || 0);
 
+            // Apply sliding window: show only last N seconds of data
+            const startIndex = Math.max(0, timestamps.length - timeWindowSeconds);
+
             setSensorData({
-              timestamps,
-              velocidad_viento,
-              presion,
-              temperatura,
-              humedad,
-              altura
+              timestamps: timestamps.slice(startIndex),
+              velocidad_viento: velocidad_viento.slice(startIndex),
+              presion: presion.slice(startIndex),
+              temperatura: temperatura.slice(startIndex),
+              humedad: humedad.slice(startIndex),
+              altura: altura.slice(startIndex)
             });
           }
           // If mission is not active, clear data
@@ -103,7 +108,7 @@ const AnalyticsView = () => {
         intervalId = null;
       }
     };
-  }, []);
+  }, [timeWindowSeconds]); // Re-run when time window changes
 
   // Determine overlay message based on mission state
   const getOverlayMessage = () => {
@@ -225,16 +230,49 @@ const AnalyticsView = () => {
   return (
     <div className="analytics-view">
       <div className="analytics-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <img src="legumbres.png" alt="Logo" className="logo" />
-              <div>
-                  <h2 className="view-title">Misión en tiempo real</h2>
-                  <p className="view-subtitle">
-                      En esta sección podrás ver las gráficas de los datos recolectados en tiempo real.
-                      {missionStarted && (
-                          <span> • Drones activos: <span className="drone-count">1</span></span>
-                      )}
-                  </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <img src="legumbres.png" alt="Logo" className="logo" />
+                  <div>
+                      <h2 className="view-title">Misión en tiempo real</h2>
+                      <p className="view-subtitle">
+                          En esta sección podrás ver las gráficas de los datos recolectados en tiempo real.
+                          {missionStarted && (
+                              <span> • Drones activos: <span className="drone-count">1</span></span>
+                          )}
+                      </p>
+                  </div>
+              </div>
+
+              {/* Time Window Selector */}
+              <div className="time-window-selector-container">
+                <label htmlFor="time-window-selector">Ventana de tiempo:</label>
+                <div className="time-window-dropdown">
+                  <button
+                    className="time-window-button"
+                    onClick={() => setShowSettings(!showSettings)}
+                  >
+                    {timeWindowSeconds < 60
+                      ? `${timeWindowSeconds}s`
+                      : `${Math.floor(timeWindowSeconds / 60)}min`} ▼
+                  </button>
+                  {showSettings && (
+                    <div className="time-window-options">
+                      {[30, 60, 120, 180, 300].map(seconds => (
+                        <button
+                          key={seconds}
+                          className={`time-window-option ${timeWindowSeconds === seconds ? 'active' : ''}`}
+                          onClick={() => {
+                            setTimeWindowSeconds(seconds);
+                            setShowSettings(false);
+                          }}
+                        >
+                          {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}min`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
           </div>
       </div>

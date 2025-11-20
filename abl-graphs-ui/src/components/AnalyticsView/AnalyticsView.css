@@ -31,6 +31,103 @@
   font-weight: 600;
 }
 
+/* Time Window Selector - Similar to MissionsListView page-size-dropdown */
+.time-window-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.time-window-selector-container label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  white-space: nowrap;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.time-window-dropdown {
+  position: relative;
+}
+
+.time-window-button {
+  background-color: white;
+  border: 2px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #2c3e50;
+}
+
+.time-window-button:hover {
+  border-color: #3498db;
+  background-color: #f8f9fa;
+}
+
+.time-window-options {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background: white;
+  border: 2px solid #e6e6e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.time-window-option {
+  display: block;
+  width: 100%;
+  padding: 10px 20px;
+  border: none;
+  background: white;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #2c3e50;
+  white-space: nowrap;
+}
+
+.time-window-option:hover {
+  background-color: #f8f9fa;
+  color: #3498db;
+}
+
+.time-window-option.active {
+  background-color: #3498db;
+  color: white;
+  font-weight: 600;
+}
+
+.time-window-option.active:hover {
+  background-color: #2980b9;
+}
+
 .mission-status {
   margin-top: 15px;
   padding: 12px 20px;

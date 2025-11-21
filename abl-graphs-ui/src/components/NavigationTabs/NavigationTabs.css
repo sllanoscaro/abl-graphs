@@ -28,6 +28,22 @@
     font-weight: 500;
   }
 
+  .tab-link.active-mission {
+    color: #2e7d32;           /* verde para misión activa */
+    border-color: #2e7d32;    /* subrayado verde */
+    font-weight: 600;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
   .tab-link.disabled {
     color: #bbb;
     cursor: not-allowed;

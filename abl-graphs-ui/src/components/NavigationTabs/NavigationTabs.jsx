@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./NavigationTabs.css";
 
-export default function NavigationTabs({ activeTab, onChange, reportsDisabled, missionsDisabled }) {
+export default function NavigationTabs({ activeTab, onChange, reportsDisabled, missionsDisabled, missionInProgress }) {
   const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   // Auto-hide alert after 4 seconds
@@ -22,7 +22,7 @@ export default function NavigationTabs({ activeTab, onChange, reportsDisabled, m
     <>
       <nav className="nav-tabs">
         <button
-          className={`tab-link ${activeTab === "analytics" ? "active" : ""}`}
+          className={`tab-link ${activeTab === "analytics" ? "active" : ""} ${missionInProgress && activeTab !== "analytics" ? "active-mission" : ""}`}
           onClick={() => onChange("analytics")}
           type="button"
         >

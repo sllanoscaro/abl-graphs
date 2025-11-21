@@ -27,7 +27,7 @@ export default function App() {
     };
 
     checkMissionStatus();
-    const interval = setInterval(checkMissionStatus, 2000);
+    const interval = setInterval(checkMissionStatus, 10000);
 
     return () => clearInterval(interval);
   }, []);

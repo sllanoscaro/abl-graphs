@@ -244,37 +244,38 @@ const AnalyticsView = () => {
                   </div>
               </div>
 
-              {/* Time Window Selector */}
-              <div className="time-window-selector-container">
-                <label htmlFor="time-window-selector">Ventana de tiempo:</label>
-                <div className="time-window-dropdown">
-                  <button
-                    className="time-window-button"
-                    onClick={() => setShowSettings(!showSettings)}
-                  >
-                    {timeWindowSeconds < 60
-                      ? `${timeWindowSeconds}s`
-                      : `${Math.floor(timeWindowSeconds / 60)}min`} ▼
-                  </button>
-                  {showSettings && (
-                    <div className="time-window-options">
-                      {[30, 60, 120, 180, 300].map(seconds => (
-                        <button
-                          key={seconds}
-                          className={`time-window-option ${timeWindowSeconds === seconds ? 'active' : ''}`}
-                          onClick={() => {
-                            setTimeWindowSeconds(seconds);
-                            setShowSettings(false);
-                          }}
-                        >
-                          {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}min`}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
           </div>
+      </div>
+
+      {/* Time Window Selector */}
+        <div className="time-window-selector-container">
+            <label htmlFor="time-window-selector">Ventana de tiempo:</label>
+        <div className="time-window-dropdown">
+          <button
+            className="time-window-button"
+            onClick={() => setShowSettings(!showSettings)}
+          >
+            {timeWindowSeconds < 60
+              ? `${timeWindowSeconds}s`
+              : `${Math.floor(timeWindowSeconds / 60)}min`} ▼
+          </button>
+          {showSettings && (
+            <div className="time-window-options">
+              {[30, 60, 120, 180, 300].map(seconds => (
+                <button
+                  key={seconds}
+                  className={`time-window-option ${timeWindowSeconds === seconds ? 'active' : ''}`}
+                  onClick={() => {
+                    setTimeWindowSeconds(seconds);
+                    setShowSettings(false);
+                  }}
+                >
+                  {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}min`}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {showOverlay && (

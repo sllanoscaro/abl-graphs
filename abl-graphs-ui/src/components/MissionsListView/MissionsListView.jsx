@@ -28,6 +28,10 @@ const MissionsListView = ({ isConnected }) => {
   const [error, setError] = useState(null);
   const [expandedChart, setExpandedChart] = useState(null);
 
+  // Moving average state
+  const [showMovingAverage, setShowMovingAverage] = useState(false);
+  const [movingAveragePeriod, setMovingAveragePeriod] = useState(5); // Default: 5 periods
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -242,6 +246,25 @@ const MissionsListView = ({ isConnected }) => {
     setCurrentPage(1);
   };
 
+  // Calculate Simple Moving Average (SMA)
+  const calculateSMA = (data, period) => {
+    if (!data || data.length === 0) return [];
+
+    const sma = [];
+    for (let i = 0; i < data.length; i++) {
+      if (i < period - 1) {
+        sma.push(null); // Not enough data points yet
+      } else {
+        let sum = 0;
+        for (let j = 0; j < period; j++) {
+          sum += data[i - j];
+        }
+        sma.push(sum / period);
+      }
+    }
+    return sma;
+  };
+
   // Chart configuration
   const getChartOptions = (yAxisLabel) => ({
     responsive: true,
@@ -305,9 +328,8 @@ const MissionsListView = ({ isConnected }) => {
     },
   });
 
-  const getChartData = (tiempos, values, label, color) => ({
-    labels: tiempos,
-    datasets: [
+  const getChartData = (tiempos, values, label, color) => {
+    const datasets = [
       {
         label: label,
         data: values,
@@ -316,8 +338,28 @@ const MissionsListView = ({ isConnected }) => {
         borderWidth: 2,
         fill: false,
       },
-    ],
-  });
+    ];
+
+    // Add moving average dataset if enabled
+    if (showMovingAverage && values && values.length > 0) {
+      const smaData = calculateSMA(values, movingAveragePeriod);
+      datasets.push({
+        label: `${label} - Media Móvil (${movingAveragePeriod})`,
+        data: smaData,
+        borderColor: '#2c3e50',
+        backgroundColor: 'rgba(44, 62, 80, 0.1)',
+        borderWidth: 2,
+        borderDash: [5, 5],
+        fill: false,
+        pointRadius: 0,
+      });
+    }
+
+    return {
+      labels: tiempos,
+      datasets: datasets,
+    };
+  };
 
   if (selectedMission && missionData) {
     return (
@@ -369,6 +411,39 @@ const MissionsListView = ({ isConnected }) => {
               <span className="info-value">{missionData.missionInfo?.longitud || 'N/A'}</span>
             </div>
           </div>
+        </div>
+
+        {/* Moving Average Controls */}
+        <div className="moving-average-controls">
+          <div className="ma-toggle-container">
+            <label className="ma-toggle-label">
+              <input
+                type="checkbox"
+                checked={showMovingAverage}
+                onChange={(e) => setShowMovingAverage(e.target.checked)}
+                className="ma-checkbox"
+              />
+              <span className="ma-text">Mostrar medias móviles</span>
+            </label>
+          </div>
+          {showMovingAverage && (
+            <div className="ma-period-selector">
+              <label htmlFor="ma-period" className="ma-period-label">Período:</label>
+              <select
+                id="ma-period"
+                value={movingAveragePeriod}
+                onChange={(e) => setMovingAveragePeriod(Number(e.target.value))}
+                className="ma-period-select"
+              >
+                <option value={3}>3 puntos</option>
+                <option value={5}>5 puntos</option>
+                <option value={7}>7 puntos</option>
+                <option value={10}>10 puntos</option>
+                <option value={15}>15 puntos</option>
+                <option value={20}>20 puntos</option>
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="charts-section">
@@ -589,8 +664,8 @@ const MissionsListView = ({ isConnected }) => {
       </div>
 
       {error && (
-        <div className="alert-box error">
-          <p>❌ {error}</p>
+        <div className="alert-box error" style={{ display: 'flex', alignItems: 'center' }}>
+          <p>{error}</p>
         </div>
       )}
 

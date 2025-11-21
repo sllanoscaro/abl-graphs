@@ -153,6 +153,72 @@ def get_mission_realtime():
         logger.error("Error fetching mission realtime data: %s", str(e))
         return jsonify({"error": str(e)}), 500
 
+# Endpoint to get historical data for a specific mission
+@app.route("/api/mission/<int:mission_id>/data", methods=["GET"])
+def get_mission_data(mission_id):
+    try:
+        with psycopg.connect(DATABASE_URL, connect_timeout=5, row_factory=dict_row) as conn:
+            with conn.cursor() as cur:
+                # Get mission info
+                cur.execute("""
+                    SELECT IdMision, PlanVuelo, FechaHora, Latitud, Longitud, HoraInicio, HoraTermino
+                    FROM Mision
+                    WHERE IdMision = %s
+                """, (mission_id,))
+                mission_info = cur.fetchone()
+
+                if not mission_info:
+                    return jsonify({"error": "Mission not found"}), 404
+
+                # Get sensor readings grouped by type
+                cur.execute("""
+                    SELECT Tipo, Valor, HoraMinSeg
+                    FROM LecturaSensor
+                    WHERE IdMision = %s
+                    ORDER BY HoraMinSeg ASC
+                """, (mission_id,))
+                readings = cur.fetchall()
+
+        # Process readings into chart data
+        charts = {}
+        sensor_data = {}
+
+        for reading in readings:
+            tipo = reading['tipo'].lower().replace('_', ' ')
+            valor = float(reading['valor'])
+            tiempo = _to_serializable(reading['horaminseg'])
+
+            if tipo not in sensor_data:
+                sensor_data[tipo] = {'tiempos': [], 'valores': []}
+
+            sensor_data[tipo]['tiempos'].append(tiempo)
+            sensor_data[tipo]['valores'].append(valor)
+
+        # Map sensor types to chart names
+        type_mapping = {
+            'velocidad viento': 'velocidad_viento',
+            'dirección viento': 'direccion_viento',
+            'temperatura': 'temperatura',
+            'presion': 'presion',
+            'humedad': 'humedad'
+        }
+
+        for sensor_type, data in sensor_data.items():
+            chart_key = type_mapping.get(sensor_type, sensor_type.replace(' ', '_'))
+            charts[chart_key] = data
+
+        result = {
+            "missionInfo": {k: _to_serializable(v) for k, v in mission_info.items()},
+            "charts": charts
+        }
+
+        logger.info("Retrieved data for mission %s with %s chart types", mission_id, len(charts))
+        return jsonify(result), 200
+
+    except Exception as e:
+        logger.error("Error fetching mission data for mission %s: %s", mission_id, str(e))
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     try:
         mqtt_client = initialize_mqtt_client()

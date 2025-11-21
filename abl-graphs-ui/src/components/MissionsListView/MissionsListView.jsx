@@ -328,7 +328,7 @@ const MissionsListView = ({ isConnected }) => {
                   onClick={handleBackToList}
                   style={{ position: 'absolute', left: 25 }}
               >
-                  ← Volver
+                  Volver
               </button>
               <div style={{ flex: 1, textAlign: 'center' }}>
                   <h2 className="view-title">Detalle de misión: {selectedMission.planvuelo}</h2>
@@ -585,7 +585,7 @@ const MissionsListView = ({ isConnected }) => {
             </div>
         </div>
         <button className="refresh-button" onClick={fetchMissions} disabled={loading}>
-          {loading ? 'Cargando...' : '↻ Actualizar'}
+          {loading ? 'Cargando...' : 'Actualizar'}
         </button>
       </div>
 

@@ -23,14 +23,14 @@
   }
   
   .tab-link.active {
-    color: #1976d2;           /* azul activo */
-    border-color: #1976d2;    /* subrayado */
+    color: #1976d2;
+    border-color: #1976d2;
     font-weight: 500;
   }
 
   .tab-link.active-mission {
-    color: #2e7d32;           /* verde para misión activa */
-    border-color: #2e7d32;    /* subrayado verde */
+    color: #2e7d32;
+    border-color: #2e7d32;
     font-weight: 600;
     animation: pulse 2s ease-in-out infinite;
   }

@@ -7,11 +7,11 @@ import MissionsListView from "./components/MissionsListView/MissionsListView";
 import './App.css';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("analytics"); // Ventana de navegación activa
-  const [isConnected, setIsConnected] = useState(false); // Botón de conexión DB
-  const [missionInProgress, setMissionInProgress] = useState(false); // Estado de misión activa
+  const [activeTab, setActiveTab] = useState("analytics");
+  const [isConnected, setIsConnected] = useState(false);
+  const [missionInProgress, setMissionInProgress] = useState(false);
 
-  // Verificar el estado de la misión cada 2 segundos
+  // Check mission status every 2 seconds
   useEffect(() => {
     const checkMissionStatus = async () => {
       try {
@@ -21,13 +21,13 @@ export default function App() {
           setMissionInProgress(data.active === true);
         }
       } catch (error) {
-        // Silenciosamente manejar el error, la misión no está activa
+        // In case of error, assume no mission is in progress
         setMissionInProgress(false);
       }
     };
 
-    checkMissionStatus(); // Verificar inmediatamente
-    const interval = setInterval(checkMissionStatus, 2000); // Verificar cada 2 segundos
+    checkMissionStatus();
+    const interval = setInterval(checkMissionStatus, 2000);
 
     return () => clearInterval(interval);
   }, []);

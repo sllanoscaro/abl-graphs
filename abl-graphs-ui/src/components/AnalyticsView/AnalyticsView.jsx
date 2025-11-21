@@ -326,7 +326,7 @@ const AnalyticsView = () => {
             <div className="chart-modal-header">
               <h3>{charts[expandedChartIndex].title}</h3>
               <button className="chart-modal-close" onClick={() => setExpandedChartIndex(null)}>
-                ✕ Cerrar
+                Cerrar
               </button>
             </div>
             <div className="chart-modal-body">
@@ -335,8 +335,7 @@ const AnalyticsView = () => {
                   data={charts[expandedChartIndex].data}
                   options={{
                     ...chartOptions,
-                    maintainAspectRatio: true,
-                    aspectRatio: 2,
+                    maintainAspectRatio: false,
                     scales: {
                       ...chartOptions.scales,
                       y: {

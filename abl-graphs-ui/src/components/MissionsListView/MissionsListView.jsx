@@ -506,7 +506,7 @@ const MissionsListView = ({ isConnected }) => {
               <div className="chart-modal-header">
                 <h3>{expandedChart.title}</h3>
                 <button className="chart-modal-close" onClick={() => setExpandedChart(null)}>
-                  ✕ Cerrar
+                  Cerrar
                 </button>
               </div>
               <div className="chart-modal-body">
@@ -515,8 +515,7 @@ const MissionsListView = ({ isConnected }) => {
                     data={expandedChart.data}
                     options={{
                       ...getChartOptions(expandedChart.unit),
-                      maintainAspectRatio: true,
-                      aspectRatio: 2,
+                      maintainAspectRatio: false,
                       scales: {
                         ...getChartOptions(expandedChart.unit).scales,
                         x: {

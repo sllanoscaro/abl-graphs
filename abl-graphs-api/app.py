@@ -5,6 +5,7 @@ from psycopg.rows import dict_row
 import os
 from dotenv import load_dotenv
 import SensorDataAggregator
+import mongo_utils.mongodb_handler as mongodb_handler
 import paho.mqtt.client as mqtt
 import logging
 
@@ -20,6 +21,11 @@ API_PORT = os.getenv("API_PORT", "5000")
 logging.basicConfig(filename= './logs/app.log', level=logging.INFO,
                     format='%(asctime)s %(levelname)s:%(message)s')
 logger = logging.getLogger(__name__)
+
+# Disable Flask's default request logging
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.setLevel(logging.ERROR)
+werkzeug_logger.propagate = False
 
 # Database connection setup
 DB_USER = os.getenv('DB_USER')
@@ -48,6 +54,9 @@ def store_sensor_data(averaged_data):
         mission_sensor_data.clear()
     else:
         mission_sensor_data.append(averaged_data)
+
+    # Store data to MongoDB
+    mongodb_handler.store_to_mongodb(averaged_data)
 
 # Initialize MQTT client and set up callbacks
 def initialize_mqtt_client():
@@ -229,6 +238,7 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=int(API_PORT), debug=False,
                 use_reloader=False, threaded=True)
     finally:
+        # Cleanup MQTT
         if mqtt_client:
             try:
                 mqtt_client.loop_stop()
@@ -236,3 +246,10 @@ if __name__ == "__main__":
                 logger.info("Disconnected from MQTT broker")
             except Exception as mqttConnectionExceptionMsg:
                 logger.error("Error disconnecting MQTT client: %s", str(mqttConnectionExceptionMsg))
+
+        # Cleanup MongoDB
+        try:
+            mongodb_handler.mongo_handler.close()
+            logger.info("Closed MongoDB connection")
+        except Exception as mongoCloseException:
+            logger.error("Error closing MongoDB connection: %s", str(mongoCloseException))

@@ -2,7 +2,9 @@ import json
 import time
 from datetime import datetime
 from typing import Dict, List, Any, Callable, Optional
+import logging
 
+logger = logging.getLogger(__name__)
 
 class SensorDataAggregator:
     def __init__(self):
@@ -215,7 +217,7 @@ def on_message(client, userdata, msg):
     except json.JSONDecodeError as e:
         pass
     except Exception as e:
-        print(f"[ERROR] Processing message from {topic}: {e}")
+        logger.error("Error processing MQTT message on topic %s: %s", topic, str(e))
 
 
 def on_disconnect(client, userdata, reasoncode, properties=None, *args):

@@ -23,6 +23,9 @@ class SensorDataAggregator:
         self.mission_active = False
         self.mission_status_message = "Waiting for mission..."
 
+        # Keep last known altitude to avoid missing data due to timing
+        self.last_known_altitude: Optional[float] = None
+
         # Callback for storing averaged data
         self.on_data_averaged_callback: Optional[Callable[[Dict[str, Any]], None]] = None
 
@@ -102,9 +105,12 @@ class SensorDataAggregator:
 
         # Height
         if self.height_buffer:
-            averaged_data['altura'] = round(
-                self.height_buffer[-1], 2  # Use most recent value
-            )
+            # Use most recent value and update last known altitude
+            self.last_known_altitude = round(self.height_buffer[-1], 2)
+            averaged_data['altura'] = self.last_known_altitude
+        elif self.last_known_altitude is not None:
+            # No new height data in this interval, use last known altitude
+            averaged_data['altura'] = self.last_known_altitude
 
         # Add timestamp
         if averaged_data:
@@ -191,6 +197,8 @@ def on_message(client, userdata, msg):
                             # Signal to clear data by calling callback with None
                             aggregator.on_data_averaged_callback(None)
                         aggregator.mission_active = False
+                        # Reset last known altitude for next mission
+                        aggregator.last_known_altitude = None
             return
 
         # Parse sensor data JSON

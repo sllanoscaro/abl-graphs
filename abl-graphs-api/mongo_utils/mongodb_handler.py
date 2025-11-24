@@ -4,11 +4,24 @@ from typing import Dict, Any, Optional
 import os
 from dotenv import load_dotenv
 import logging
+import sys
+from pathlib import Path
+
+# Add parent directory to path to import postgres_utils
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Load environment variables
 load_dotenv()
 
 logger = logging.getLogger(__name__)
+
+# Import postgres exporter (after path setup)
+try:
+    from postgres_utils import postgresql_exporter
+    POSTGRES_EXPORT_ENABLED = True
+except ImportError as e:
+    logger.warning(f"PostgreSQL exporter not available: {e}")
+    POSTGRES_EXPORT_ENABLED = False
 
 class MongoDBHandler:
     def __init__(self):
@@ -97,6 +110,10 @@ class MongoDBHandler:
             return False
 
         try:
+            # Save collection reference for export
+            collection_to_export = self.current_mission_collection
+            collection_name = self.current_mission_metadata.get('mission_name', 'unknown')
+
             # Update metadata document
             end_time = datetime.now()
             self.current_mission_collection.update_one(
@@ -111,8 +128,20 @@ class MongoDBHandler:
             )
 
             logger.info("Ended mission: %s (total readings: %d)",
-                       self.current_mission_metadata.get('mission_name'),
+                       collection_name,
                        self.current_mission_metadata.get('total_readings', 0))
+
+            # Export to PostgreSQL if enabled
+            if POSTGRES_EXPORT_ENABLED:
+                logger.info("Exporting mission %s to PostgreSQL...", collection_name)
+                try:
+                    export_success = postgresql_exporter.export_mission_to_postgres(collection_to_export, collection_name)
+                    if export_success:
+                        logger.info("Mission %s successfully exported to PostgreSQL", collection_name)
+                    else:
+                        logger.error("Failed to export mission %s to PostgreSQL", collection_name)
+                except Exception as e:
+                    logger.error("Error during PostgreSQL export for mission %s: %s", collection_name, str(e))
 
             # Clear current mission tracking
             self.current_mission_collection = None

@@ -5,88 +5,66 @@ from datetime import datetime, timedelta
 # Configuración inicial
 altura_inicial = 1500       # metros
 descenso = 5                # metros por paso
-hora_inicial = datetime.strptime("20:00:00", "%H:%M:%S")
-id_mision = 13
-id_lectura = 18061
+hora_inicial = datetime.strptime("12:00:00", "%H:%M:%S")
+id_mision = 5
+id_lectura = 6021
 
-# Valores iniciales para cada sensor (puntos de partida)
-velocidad_viento_base = 12.0    # m/s
-direccion_viento_base = 180.0   # grados
-presion_base = 1013.0           # hPa
-temperatura_base = 15.0         # °C
-humedad_base = 60.0             # %
+# Definición de los sensores y sus rangos de valores
+sensores = [
+    ("Velocidad_Viento", 1, (5, 30)),      # m/s - rango inicial y pico
+    ("Dirección_Viento", 1, (0, 360)),     # grados
+    ("Presion", 2, (960, 1040)),           # hPa
+    ("Temperatura", 2, (0, 30)),           # °C
+    ("Humedad", 2, (30, 90)),              # %
+]
 
-# Generar todas las lecturas con patrones
+# Calcular total de iteraciones
+total_iteraciones = (altura_inicial // descenso) + 1
+mitad = total_iteraciones // 2
+
+# Función para calcular el progreso (0.0 a 1.0 y de vuelta a 0.0)
+def calcular_progreso(iteracion, total):
+    if iteracion <= total // 2:
+        # Primera mitad: crece de 0 a 1
+        return iteracion / (total // 2)
+    else:
+        # Segunda mitad: decrece de 1 a 0
+        return 1 - ((iteracion - total // 2) / (total - total // 2))
+
+# Generar todas las lecturas
 valores = []
 altura = altura_inicial
 tiempo = hora_inicial
-paso = 0
+iteracion = 0
 
 while altura >= 0:
-    # Calcular variaciones basadas en la altura y tiempo
-    # La presión disminuye con la altura de forma más predecible
-    presion_actual = presion_base - (altura_inicial - altura) * 0.12 + random.uniform(-2, 2)
-    presion_actual = max(950, min(1050, presion_actual))  # Limitar rango
+    progreso = calcular_progreso(iteracion, total_iteraciones)
 
-    # La temperatura varía con la altura (gradiente térmico) y oscilaciones
-    temp_variacion_altura = (altura_inicial - altura) * 0.0065  # ~6.5°C por 1000m
-    temp_oscilacion = math.sin(paso * 0.1) * 3  # Oscilación suave
-    temperatura_actual = temperatura_base + temp_variacion_altura + temp_oscilacion + random.uniform(-1.5, 1.5)
-    temperatura_actual = max(-10, min(35, temperatura_actual))
+    for tipo, id_sensor, (vmin, vmax) in sensores:
+        if tipo == "Dirección_Viento":
+            # La dirección del viento varía de forma cíclica
+            valor = round((vmin + (vmax - vmin) * progreso) + random.uniform(-10, 10), 2)
+            valor = valor % 360  # Mantener entre 0-360
+        else:
+            # Otros sensores siguen el patrón de crecimiento/decrecimiento
+            rango = vmax - vmin
+            valor_base = vmin + (rango * progreso)
+            # Agregar pequeña variación aleatoria (±5% del rango)
+            variacion = random.uniform(-rango * 0.05, rango * 0.05)
+            valor = round(valor_base + variacion, 2)
+            # Asegurar que esté dentro del rango
+            valor = max(vmin, min(vmax, valor))
 
-    # Velocidad del viento con variación suave y tendencia
-    velocidad_tendencia = math.sin(paso * 0.08) * 5
-    velocidad_actual = velocidad_viento_base + velocidad_tendencia + random.uniform(-1.5, 1.5)
-    velocidad_actual = max(0, min(25, velocidad_actual))
+        hora_str = tiempo.strftime("%H:%M:%S")
+        valores.append(
+            f"({id_lectura}, {id_sensor}, {id_mision}, '{tipo}', {valor}, {altura}, '{hora_str}')"
+        )
+        id_lectura += 1
 
-    # Dirección del viento cambia gradualmente (sin saltos bruscos)
-    direccion_cambio = math.sin(paso * 0.05) * 20 + random.uniform(-5, 5)
-    direccion_viento_base = (direccion_viento_base + direccion_cambio) % 360
-    direccion_actual = direccion_viento_base
-
-    # Humedad inversamente relacionada con temperatura
-    humedad_base_temp = 70 - (temperatura_actual - 10) * 1.2
-    humedad_oscilacion = math.cos(paso * 0.09) * 8
-    humedad_actual = humedad_base_temp + humedad_oscilacion + random.uniform(-3, 3)
-    humedad_actual = max(0, min(100, humedad_actual))
-
-    # Crear las lecturas para cada sensor
-    hora_str = tiempo.strftime("%H:%M:%S")
-
-    # Velocidad del Viento
-    valores.append(
-        f"({id_lectura}, 1, {id_mision}, 'Velocidad_Viento', {round(velocidad_actual, 2)}, {altura}, '{hora_str}')"
-    )
-    id_lectura += 1
-
-    # Dirección del Viento
-    valores.append(
-        f"({id_lectura}, 1, {id_mision}, 'Dirección_Viento', {round(direccion_actual, 2)}, {altura}, '{hora_str}')"
-    )
-    id_lectura += 1
-
-    # Presión
-    valores.append(
-        f"({id_lectura}, 2, {id_mision}, 'Presion', {round(presion_actual, 2)}, {altura}, '{hora_str}')"
-    )
-    id_lectura += 1
-
-    # Temperatura
-    valores.append(
-        f"({id_lectura}, 2, {id_mision}, 'Temperatura', {round(temperatura_actual, 2)}, {altura}, '{hora_str}')"
-    )
-    id_lectura += 1
-
-    # Humedad
-    valores.append(
-        f"({id_lectura}, 2, {id_mision}, 'Humedad', {round(humedad_actual, 2)}, {altura}, '{hora_str}')"
-    )
-    id_lectura += 1
-
-    # Siguiente segundo y descenso de altura
+    # siguiente segundo y descenso de altura
     tiempo += timedelta(seconds=1)
     altura -= descenso
-    paso += 1
+    iteracion += 1
 
 # Unir todo en una sola sentencia SQL
 query = (
@@ -96,8 +74,8 @@ query = (
 )
 
 # Guardar o mostrar
-with open("insert_lecturas_13.sql", "w", encoding="utf-8") as f:
+with open("insert_lecturas_5.sql", "w", encoding="utf-8") as f:
     f.write(query)
 
-print("Consulta SQL generada: insert_lecturas_13.sql")
+print("✅ Consulta SQL generada: insert_lecturas_5.sql")
 print(f"Total de registros: {len(valores)}")

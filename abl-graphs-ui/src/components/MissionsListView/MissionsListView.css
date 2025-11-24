@@ -61,13 +61,14 @@
   border-radius: 8px;
   padding: 20px;
   text-align: center;
-  margin: 20px;
+  margin: 20px auto;
   max-width: 600px;
 }
 
 .alert-box.error {
   background-color: #f8d7da;
   border: 1px solid #f5c6cb;
+
 }
 
 .alert-box p {
@@ -619,11 +620,8 @@
 
 /* Moving Average Controls */
 .moving-average-controls {
-  background: white;
-  border-radius: 12px;
-  padding: 20px 30px;
+  padding: 10px 20px;
   margin: 0 20px 20px 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   gap: 30px;

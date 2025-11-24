@@ -664,9 +664,9 @@ const MissionsListView = ({ isConnected }) => {
       </div>
 
       {error && (
-        <div className="alert-box error" style={{ display: 'flex', alignItems: 'center' }}>
-          <p>{error}</p>
-        </div>
+          <div className="alert-box error" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+          <p style={{ margin: 0, textAlign: 'center' }}>{error}</p>
+          </div>
       )}
 
       {loading && missions.length === 0 ? (
@@ -684,7 +684,7 @@ const MissionsListView = ({ isConnected }) => {
             <div className="search-box">
               <input
                 type="text"
-                placeholder="Buscar por ID o nombre de plan de vuelo..."
+                placeholder="Buscar por ID o plan de vuelo..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="search-input"

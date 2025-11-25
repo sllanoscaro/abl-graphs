@@ -175,6 +175,7 @@ class MongoDBHandler:
                 'recorded_at': datetime.now(),
                 'sensors': {
                     'velocidad_viento': averaged_data.get('velocidad_viento'),
+                    'dirección_viento': averaged_data.get('dirección_viento'),
                     'temperatura': averaged_data.get('temperatura'),
                     'presion': averaged_data.get('presion'),
                     'humedad': averaged_data.get('humedad'),

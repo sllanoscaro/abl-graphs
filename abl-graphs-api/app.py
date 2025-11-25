@@ -206,7 +206,7 @@ def get_mission_data(mission_id):
         # Map sensor types to chart names
         type_mapping = {
             'velocidad viento': 'velocidad_viento',
-            'dirección viento': 'direccion_viento',
+            'dirección viento': 'dirección_viento',
             'temperatura': 'temperatura',
             'presion': 'presion',
             'humedad': 'humedad'
@@ -226,6 +226,126 @@ def get_mission_data(mission_id):
 
     except Exception as e:
         logger.error("Error fetching mission data for mission %s: %s", mission_id, str(e))
+        return jsonify({"error": str(e)}), 500
+
+# Endpoint to generate wind contour plot for multiple missions
+@app.route("/api/reports/wind-contour", methods=["POST"])
+def get_wind_contour():
+    try:
+        from flask import request
+        data = request.get_json()
+
+        if not data or 'missionIds' not in data:
+            return jsonify({"error": "Missing missionIds in request body"}), 400
+
+        mission_ids = data['missionIds']
+
+        if not isinstance(mission_ids, list) or len(mission_ids) < 2:
+            return jsonify({"error": "At least 2 mission IDs are required"}), 400
+
+        with psycopg.connect(DATABASE_URL, connect_timeout=5, row_factory=dict_row) as conn:
+            with conn.cursor() as cur:
+                # Get mission labels
+                placeholders = ','.join(['%s'] * len(mission_ids))
+                cur.execute(f"""
+                    SELECT IdMision, PlanVuelo
+                    FROM Mision
+                    WHERE IdMision IN ({placeholders})
+                    ORDER BY IdMision
+                """, mission_ids)
+                missions_info = cur.fetchall()
+
+                if not missions_info:
+                    return jsonify({"error": "No missions found"}), 404
+
+                # Create mission labels mapping
+                mission_labels = {m['idmision']: m['planvuelo'] or f"Misión {m['idmision']}"
+                                for m in missions_info}
+
+                # Get wind speed and direction data for all missions
+                cur.execute(f"""
+                    SELECT IdMision, Tipo, Valor, Altura
+                    FROM LecturaSensor
+                    WHERE IdMision IN ({placeholders})
+                    AND (Tipo = 'Velocidad_Viento' OR Tipo = 'Dirección_Viento')
+                    ORDER BY IdMision, Altura
+                """, mission_ids)
+                readings = cur.fetchall()
+
+        # Process data for contour plot
+        # Group by mission and altitude
+        mission_data = {}
+        for reading in readings:
+            mission_id = reading['idmision']
+            altura = float(reading['altura'])
+            tipo = reading['tipo']
+            valor = float(reading['valor'])
+
+            if mission_id not in mission_data:
+                mission_data[mission_id] = {}
+
+            if altura not in mission_data[mission_id]:
+                mission_data[mission_id][altura] = {}
+
+            if tipo == 'Velocidad_Viento':
+                mission_data[mission_id][altura]['velocidad'] = valor
+            elif tipo == 'Dirección_Viento':
+                mission_data[mission_id][altura]['direccion'] = valor
+
+        # Get unique sorted altitudes across all missions
+        all_altitudes = sorted(set(
+            altura
+            for mission in mission_data.values()
+            for altura in mission.keys()
+        ))
+
+        # Get sorted mission IDs (for x-axis)
+        sorted_mission_ids = sorted(mission_data.keys())
+
+        # Build the z matrix (velocities) for contour plot
+        # z[i][j] = velocity at altitude[i] and mission[j]
+        z_matrix = []
+        for altura in all_altitudes:
+            row = []
+            for mission_id in sorted_mission_ids:
+                if mission_id in mission_data and altura in mission_data[mission_id]:
+                    row.append(mission_data[mission_id][altura].get('velocidad', None))
+                else:
+                    row.append(None)
+            z_matrix.append(row)
+
+        # Prepare scatter data for wind direction arrows
+        scatter_x = []
+        scatter_y = []
+        directions = []
+
+        for mission_id in sorted_mission_ids:
+            if mission_id in mission_data:
+                for altura in mission_data[mission_id].keys():
+                    data_point = mission_data[mission_id][altura]
+                    if 'direccion' in data_point:
+                        scatter_x.append(mission_id)
+                        scatter_y.append(altura)
+                        # Plotly uses angle in degrees, 0° = right, counterclockwise
+                        # Wind direction is meteorological (direction FROM which wind blows)
+                        # Convert to arrow pointing TO where wind goes (opposite direction)
+                        directions.append((data_point['direccion'] + 180) % 360)
+
+        result = {
+            "missions": sorted_mission_ids,
+            "missionLabels": [mission_labels[mid] for mid in sorted_mission_ids],
+            "altitudes": all_altitudes,
+            "velocities": z_matrix,
+            "scatterX": scatter_x,
+            "scatterY": scatter_y,
+            "directions": directions
+        }
+
+        logger.info("Generated wind contour plot for %s missions", len(mission_ids))
+        return jsonify(result), 200
+
+    except Exception as e:
+        logger.error("Error generating wind contour plot: %s", str(e))
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":

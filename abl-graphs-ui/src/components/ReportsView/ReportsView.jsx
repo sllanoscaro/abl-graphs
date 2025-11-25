@@ -169,6 +169,17 @@ export default function ReportsView({ isConnected, endpoint }) {
             <h3>Mapa de Contornos - Velocidad del Viento</h3>
           </div>
 
+          {!plotData && !loadingPlot && (
+            <div className="empty">
+              Selecciona al menos 2 misiones y haz clic en "Generar Gráfico" para visualizar el mapa de contornos.
+            </div>
+          )}
+
+          {loadingPlot && (
+            <div className="empty">
+              Generando gráfico de contornos...
+            </div>
+          )}
 
           {plotData && (
             <div className="plot-container">

@@ -133,6 +133,22 @@ class PostgresqlExporter:
                             ))
                             lectura_id += 1
 
+                        # Insert wind direction (Anemometro)
+                        if 'dirección_viento' in sensors:
+                            cur.execute("""
+                                INSERT INTO LecturaSensor (IdLecturaSensor, IdSensor, IdMision, Tipo, Valor, Altura, HoraMinSeg)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                            """, (
+                                lectura_id,
+                                self.sensor_ids['anemometro'],
+                                next_mission_id,
+                                'Dirección_Viento',
+                                sensors['dirección_viento'],
+                                altura,
+                                reading_time
+                            ))
+                            lectura_id += 1
+
                         # Insert pressure (IMET)
                         if 'presion' in sensors:
                             cur.execute("""
@@ -186,16 +202,17 @@ class PostgresqlExporter:
 
                     # Calculate total sensor entries
                     total_sensor_entries = sum([
-                        1 if 'velocidad_viento' in r.get('sensors', {}) else 0 +
-                        1 if 'presion' in r.get('sensors', {}) else 0 +
-                        1 if 'temperatura' in r.get('sensors', {}) else 0 +
-                        1 if 'humedad' in r.get('sensors', {}) else 0
+                        (1 if 'velocidad_viento' in r.get('sensors', {}) else 0) +
+                        (1 if 'dirección_viento' in r.get('sensors', {}) else 0) +
+                        (1 if 'presion' in r.get('sensors', {}) else 0) +
+                        (1 if 'temperatura' in r.get('sensors', {}) else 0) +
+                        (1 if 'humedad' in r.get('sensors', {}) else 0)
                         for r in readings
                     ])
 
                     logger.info(
                         f"Exported mission {collection_name} to PostgreSQL: "
-                        f"Mission ID={next_mission_id}, {len(readings)} readings"
+                        f"Mission ID={next_mission_id}, {len(readings)} readings, {total_sensor_entries} sensor entries"
                     )
 
                     return True

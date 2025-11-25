@@ -10,6 +10,7 @@ class SensorDataAggregator:
     def __init__(self):
         # Buffers to store incoming sensor data
         self.wind_speed_buffer: List[float] = []
+        self.wind_direction_buffer: List[float] = []
         self.temperature_buffer: List[float] = []
         self.pressure_buffer: List[float] = []
         self.humidity_buffer: List[float] = []
@@ -32,6 +33,8 @@ class SensorDataAggregator:
     def add_anemometer_data(self, data: Dict[str, Any]) -> None:
         if 'velocidadViento' in data:
             self.wind_speed_buffer.append(data['velocidadViento'])
+        if 'direccionViento' in data:
+            self.wind_direction_buffer.append(data['direccionViento'])
 
     def add_imet_data(self, data: Dict[str, Any]) -> None:
         if 'temperatura' in data:
@@ -85,6 +88,12 @@ class SensorDataAggregator:
                 sum(self.wind_speed_buffer) / len(self.wind_speed_buffer), 2
             )
 
+        # Average wind direction
+        if self.wind_direction_buffer:
+            averaged_data['dirección_viento'] = round(
+                sum(self.wind_direction_buffer) / len(self.wind_direction_buffer), 1
+            )
+
         # Average temperature
         if self.temperature_buffer:
             averaged_data['temperatura'] = round(
@@ -118,6 +127,7 @@ class SensorDataAggregator:
 
         # Clear buffers after computing averages
         self.wind_speed_buffer.clear()
+        self.wind_direction_buffer.clear()
         self.temperature_buffer.clear()
         self.pressure_buffer.clear()
         self.humidity_buffer.clear()

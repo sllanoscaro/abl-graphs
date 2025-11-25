@@ -118,7 +118,9 @@
     background-color: #f8d7da;
     color: #721c24;
     border-radius: 8px;
-    margin: 16px 20px;
+    margin: 16px auto;
+    max-width: 90%;
+    text-align: center;
     font-family: 'Montserrat', sans-serif;
     font-weight: 500;
 }
